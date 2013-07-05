@@ -2,7 +2,7 @@ module plot
   use plplot
   implicit none
   private
-  
+
   public plot_init, plot_close, plot_points
 
 contains
