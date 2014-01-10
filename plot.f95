@@ -8,7 +8,7 @@ module plot
 contains
 
   subroutine plot_init(boxSize)
-    real, intent(in) :: boxSize
+    real(8), intent(in) :: boxSize
     call plsdev("xcairo")
     call plinit()
 
@@ -24,10 +24,10 @@ contains
     !call plscol0(9, 128, 128, 128)  ! gray
 
     call pladv(0)
-    call plvpor(0.0, 1.0, 0.0, 1.0)
-    call plwind(-1.0, 1.0, -2.0/3, 4.0/3)
-    call plw3d(1.0, 1.0, 1.0, 0.0, boxSize, 0.0, boxSize, 0.0, boxSize, 45.0, &
-    -45.0)
+    call plvpor(0d0, 1d0, 0d0, 1d0)
+    call plwind(-1d0, 1d0, -2d0/3, 4d0/3)
+    call plw3d(1d0, 1d0, 1d0, 0d0, boxSize, 0d0, boxSize, 0d0, boxSize, 45d0, &
+    -45d0)
   end subroutine plot_init
 
   subroutine plot_close()
@@ -40,8 +40,8 @@ contains
 
     call plclear()
     call plcol0(1)
-    call plbox3("bnstu", "x", 0.0, 0, "bnstu", "y", 0.0, 0, "bcnmstuv", &
-      "z", 0.0, 0)
+    call plbox3("bnstu", "x", 0d0, 0, "bnstu", "y", 0d0, 0, "bcnmstuv", &
+      "z", 0d0, 0)
     call plcol0(2)
     call plpoin3(xyz(1, :), xyz(2, :), xyz(3, :), 4)
     call plflush()
