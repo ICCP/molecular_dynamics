@@ -1,13 +1,13 @@
-module plot
+module md_plot
   use plplot
   implicit none
   private
 
-  public plot_init, plot_close, plot_points
+  public md_plot_init, md_plot_close, md_plot_points
 
 contains
 
-  subroutine plot_init(boxSize)
+  subroutine md_plot_init(boxSize)
     real(8), intent(in) :: boxSize
     call plsdev("xcairo")
     call plinit()
@@ -28,14 +28,14 @@ contains
     call plwind(-1d0, 1d0, -2d0/3, 4d0/3)
     call plw3d(1d0, 1d0, 1d0, 0d0, boxSize, 0d0, boxSize, 0d0, boxSize, 45d0, &
     -45d0)
-  end subroutine plot_init
+  end subroutine md_plot_init
 
-  subroutine plot_close()
+  subroutine md_plot_close()
     call plspause(.false.)
     call plend()
-  end subroutine plot_close
+  end subroutine md_plot_close
 
-  subroutine plot_points(xyz)
+  subroutine md_plot_points(xyz)
     real(8), intent(in) :: xyz(:,:)
 
     call plclear()
@@ -45,6 +45,6 @@ contains
     call plcol0(2)
     call plpoin3(xyz(1, :), xyz(2, :), xyz(3, :), 4)
     call plflush()
-  end subroutine plot_points
+  end subroutine md_plot_points
 
-end module plot
+end module md_plot
