@@ -1,21 +1,29 @@
 FC = gfortran
-FFLAGS = -Wall -Wextra -march=native -O3
+FFLAGS = -Wall -Wextra -O3 -std=f95 #-march=native
 LDFLAGS =
+FFLAGS += $(shell pkg-config --cflags plplotd-f95)
+LDFLAGS = $(shell pkg-config --libs plplotd-f95)
 #LIBS = -llapack
 
 COMPILE = $(FC) $(FFLAGS)
 LINK = $(FC) $(LDFLAGS)
 
 OBJS =
+OBJS += md_plot.o
 OBJS += myprog.o
+
 
 all: myprog
 
 myprog: $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS)
 
-%.o: %.f90
+myprog.o: myprog.f90
 	$(COMPILE) -o $@ -c $<
+
+md_plot.o: md_plot.f95
+	$(COMPILE) -o $@ -c $<
+
 
 .PHONY: clean
 clean:
