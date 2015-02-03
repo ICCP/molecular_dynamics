@@ -52,34 +52,38 @@ contains
     real(8), intent(inout) :: velocity(3,32)
     integer, intent(in) :: N, T
 
-    integer :: i,j,k =8888
+    integer :: i,j
+
+    call init_random_seed
 
     do i = 1, 3
        do j = 1, N
-          k = k+100
-          velocity(i,j) = gaussRandom(T,k )
+          velocity(i,j) = gaussRandom(T)
        end do
     end do
 
   end subroutine initialize_velocity
 
-  real(8) function gaussRandom(Temperature, seed) result(rand_vel)
+  real(8) function gaussRandom(Temperature) result(rand_vel)
     
-    integer, intent(in) :: Temperature, seed
+    integer, intent(in) :: Temperature
     real(8), parameter :: PI=4*atan(1.0)
     real(8) :: random1, random2, probability
 
-    call init_random_seed
     call random_number(random1)
     call random_number(random2)
 
-    random1 = random1*6*sqrt(3.0*Temperature) - 3*sqrt(3.0*Temperature)
+    random1 = random1*3*sqrt(3.0*Temperature) - 3*sqrt(3.0*Temperature)/2
     probability = (1/sqrt(6.0*Temperature*PI))*exp(-random1**2/6.0*Temperature)
 
     print *, random1, probability, random2
 
     do while (probability < random2)
+       call random_number(random1)
        call random_number(random2)
+       
+       random1 = random1*3*sqrt(3.0*Temperature) - 3*sqrt(3.0*Temperature)/2
+       probability = (1/sqrt(6.0*Temperature*PI))*exp(-random1**2/6.0*Temperature)
     end do
 
     rand_vel = random1
