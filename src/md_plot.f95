@@ -31,7 +31,7 @@ contains
   end subroutine md_plot_init
 
   subroutine md_plot_close()
-    call plspause(.false.)
+    call plspause(.true.)  !change to false when including timesteps
     call plend()
   end subroutine md_plot_close
 
