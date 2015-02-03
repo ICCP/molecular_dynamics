@@ -1,18 +1,22 @@
-FC      = gfortran
-FFLAGS  = -Wall -Wextra -O3 -fimplicit-none -march=native 
-#FFLAGS += -pedantic -fbounds-check -fmax-errors=1 -g
-FFLAGS += $(shell pkg-config --cflags plplotd-f95)
-LDFLAGS = $(shell pkg-config --libs plplotd-f95)
-LIBS    =
+FC = gfortran
+FFLAGS = -Wall -Wextra -march=native -O3
+LDFLAGS =
+#LIBS = -llapack
 
 COMPILE = $(FC) $(FFLAGS)
 LINK = $(FC) $(LDFLAGS)
 
-TARGET = md.exe       # Name of final executable to produce
-OBJS = md_plot.o md.o # List of object dependencies
+OBJS =
+OBJS += myprog.o
 
-$(TARGET): $(OBJS)
+all: myprog
+
+myprog: $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS)
 
-%.o:%.f95
-	$(COMPILE) -c $<
+%.o: %.f90
+	$(COMPILE) -o $@ -c $<
+
+.PHONY: clean
+clean:
+	$(RM) myprog $(OBJS) *.mod
