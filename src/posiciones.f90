@@ -1,5 +1,4 @@
-module posiciones
-  implicit none
+module change_positions
   
   private
 
@@ -25,4 +24,4 @@ contains
 
   end subroutine
 
-end module
+end module change_positions
