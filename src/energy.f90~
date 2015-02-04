@@ -1,0 +1,17 @@
+module energy
+
+  private
+
+  public calculate_kin_energy
+
+contains
+
+  subroutine calculate_kin_energy(velocity, particles)
+
+    integer, intent(in) :: particles
+    real(8), intent(inout) :: velocity(3,particles)
+
+
+  end subroutine calculate_kin_energy
+
+end module movement

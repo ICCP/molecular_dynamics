@@ -12,7 +12,7 @@ OBJS =
 #OBJS += md_plot.o
 OBJS += initialization.o
 OBJS += force.o
-OBJS += energy.o
+OBJS += movement.o
 OBJS += myprog.o
 
 
