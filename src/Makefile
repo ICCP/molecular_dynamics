@@ -13,7 +13,6 @@ OBJS =
 OBJS += initialization.o
 OBJS += force.o
 OBJS += myprog.o
-OBJS += posiciones.o
 
 
 all: myprog
@@ -21,8 +20,8 @@ all: myprog
 myprog: $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS)
 
-myprog.o: myprog.f90
-	$(COMPILE) -o $@ -c $<
+#myprog.o: myprog.f90
+#	$(COMPILE) -o $@ -c $<
 
 %.o: %.f90
 	$(COMPILE) -o $@ -c $<
