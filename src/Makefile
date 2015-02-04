@@ -12,8 +12,8 @@ OBJS =
 #OBJS += md_plot.o
 OBJS += initialization.o
 OBJS += force.o
-OBJS += myprog.o
 OBJS += posiciones.o
+OBJS += myprog.o
 
 
 all: myprog
