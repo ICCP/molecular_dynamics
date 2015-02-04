@@ -1,6 +1,6 @@
 program ArgonGas
 
- ! use md_plot
+  use md_plot
   use initialization
   use force
   use posiciones
@@ -21,8 +21,8 @@ program ArgonGas
   print *, "fuerzas" 
   write(*,"(3E10.2)") forces
 
-!  call md_plot_init(boxSize)
-!  call md_plot_points(positions)
-!  call md_plot_close()
+  call md_plot_init(boxSize)
+  call md_plot_points(positions)
+  call md_plot_close()
 
 end program
