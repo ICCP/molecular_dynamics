@@ -14,6 +14,7 @@ contains
     real(8), intent(in) :: velocity(3,32)
     integer, intent(in) :: N, boxes, timestep
 
+    real(8) :: x, y, z
     integer :: i, j
 
     do i = 1, N
