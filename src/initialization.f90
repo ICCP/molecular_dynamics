@@ -11,30 +11,31 @@ module initialization
 
 contains
   
-  subroutine initialize_position(position, L, num_part)
+  subroutine initialize_position(position, L, num_part, init_distance)
     
     integer, intent(in) :: L, num_part
+    real(8), intent(in) :: init_distance
     real(8), intent(inout) :: position(3,num_part)
     integer :: i, j, k, n=1
     
     do i = 0, L-1
        do j = 0, L-1
           do k = 0, L-1
-             position(1,n) = i*2.0**(2.0/3)            !First particle in origin
-             position(2,n) = j*2.0**(2.0/3)
-             position(3,n) = k*2.0**(2.0/3)
+             position(1,n) = i*init_distance            !First particle in origin
+             position(2,n) = j*init_distance
+             position(3,n) = k*init_distance
              n = n+1
-             position(1,n) = i*2.0**(2.0/3)+2.0**(-1.0/3)!Second particle in face k=1
-             position(2,n) = j*2.0**(2.0/3)+2.0**(-1.0/3)
-             position(3,n) = k*2.0**(2.0/3)
+             position(1,n) = i*init_distance+2.0**(-1.0/3)!Second particle in face k=1
+             position(2,n) = j*init_distance+2.0**(-1.0/3)
+             position(3,n) = k*init_distance
              n = n+1
-             position(1,n) = i*2.0**(2.0/3)            !Third in face i=1
-             position(2,n) = j*2.0**(2.0/3)+2.0**(-1.0/3)
-             position(3,n) = k*2.0**(2.0/3)+2.0**(-1.0/3)
+             position(1,n) = i*init_distance            !Third in face i=1
+             position(2,n) = j*init_distance+2.0**(-1.0/3)
+             position(3,n) = k*init_distance+2.0**(-1.0/3)
              n = n+1
-             position(1,n) = i*2.0**(2.0/3)+2.0**(-1.0/3)    !Fourth in face j=1
-             position(2,n) = j*2.0**(2.0/3)
-             position(3,n) = k*2.0**(2.0/3)+2.0**(-1.0/3)
+             position(1,n) = i*init_distance+2.0**(-1.0/3)    !Fourth in face j=1
+             position(2,n) = j*init_distance
+             position(3,n) = k*init_distance+2.0**(-1.0/3)
              n = n+1
           end do
        end do
