@@ -1,11 +1,8 @@
 *.o
 *.mod
-<<<<<<< HEAD
-myprog
 *.f90~
 *.out
-=======
 *.f90
-*.f90~
 myprog
->>>>>>> 4653965b5eb4f1ae76b144ccde2da26b90407616
+*.txt
+*.png
