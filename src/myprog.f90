@@ -6,7 +6,7 @@ program ArgonGas
 
   implicit none
 
-  integer, parameter :: boxes = 6, particles = 864
+  integer, parameter :: boxes = 8, particles = 2048
   real(8), parameter :: temperature = 1d0
   real(8), parameter :: total_time = 1
   real(8), parameter :: time_step = 0.001
@@ -50,9 +50,12 @@ program ArgonGas
      write(7,*) i, ener_kin
      write(8,*) i, ener_pot
      write(9,*) i, ener_kin+ener_pot
-     !     print*, i, ener_kin, ener_pot, ener_kin+ener_pot
+!    print*, i, ener_kin, ener_pot, ener_kin+ener_pot
   end do
 
+close (unit = 7)
+close (unit = 8)
+close (unit = 9)
       
   !print *, "posiciones"
   !write(*,"(3E10.2)") position !3 reals of width 10 and 2 decimals
