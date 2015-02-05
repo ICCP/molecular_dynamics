@@ -36,6 +36,10 @@ program ArgonGas
   !write(*,"(3ES10.2)") forces
   !write(*,*) length
 
+  open (unit=7,file='ener_kin_data.txt')
+  open (unit=8,file='ener_pot_data.txt')
+  open (unit=9,file='ener_tot_data.txt')
+
   do i = 0, totaltimeint
      velocity(:,:) = velocity(:,:) + forces(:,:)*time_step/2.0
      position(:,:) = position(:,:)+velocity(:,:)*time_step
@@ -43,13 +47,10 @@ program ArgonGas
      call calculate_force(forces, particles, position, boxes, ener_pot)
      velocity(:,:) = velocity(:,:) + forces(:,:)*time_step/2.0
      call calculate_kin_energy(velocity, particles, ener_kin)
-     open (unit=7,file='ener_kin_data.txt')
      write(7,*) i, ener_kin
-     open (unit=8,file='ener_pot_data.txt')
      write(8,*) i, ener_pot
-     open (unit=9,file='ener_tot_data.txt')
      write(9,*) i, ener_kin+ener_pot
-!     print*, i, ener_kin, ener_pot, ener_kin+ener_pot
+     !     print*, i, ener_kin, ener_pot, ener_kin+ener_pot
   end do
 
       
