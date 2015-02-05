@@ -20,16 +20,17 @@ contains
     
   end subroutine initialize_force
 
-  subroutine calculate_force(forces, N, positions, boxes, ener_pot)
+  subroutine calculate_force(forces, N, positions, boxes, ener_pot, init_distance)
 
     integer, intent(in) :: N, boxes
     real(8), intent(out) :: forces(3,N), ener_pot
     real(8), intent(in) :: positions(3,N)
+    real(8), intent(in) :: init_distance
 
     real(8) :: distance(3), max, F, rsq
     integer ::i, j
 
-    max = 2.**(2./3)*boxes
+    max = init_distance*boxes
     ener_pot =  0
 
     forces = 0d0

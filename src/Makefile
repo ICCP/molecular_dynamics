@@ -13,6 +13,7 @@ OBJS =
 OBJS += initialization.o
 OBJS += force.o
 OBJS += energy.o
+OBJS += const_temp.o
 OBJS += myprog.o
 
 
