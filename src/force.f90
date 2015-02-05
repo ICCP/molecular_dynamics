@@ -29,7 +29,7 @@ contains
     real(8) :: distance(3), max, F, rsq
     integer ::i, j
 
-    max = (2.0**(2.0/3))*boxes
+    max = 2.**(2./3)*boxes
     ener_pot =  0
 
     forces = 0d0
