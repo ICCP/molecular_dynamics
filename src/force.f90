@@ -1,4 +1,6 @@
 module force
+
+  implicit none
   
   private
   
@@ -11,6 +13,8 @@ contains
 
     integer, intent(in) :: N
     real(8), intent(inout) :: forces(3,N)
+
+    integer :: i, j
 
     do i = 1, N
        do j = 1, 3 

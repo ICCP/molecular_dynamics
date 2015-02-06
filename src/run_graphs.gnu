@@ -16,3 +16,6 @@ set title 'Total Energy'
 set output 'ener_tot.png'
 plot 'ener_tot_data.txt' with linespoints lc rgb "blue"
 
+set title 'Final Temperature'
+set output 'temp_final.png'
+plot 'temp_final_data.txt' with linespoints lc rgb "blue"
