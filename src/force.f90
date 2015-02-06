@@ -24,19 +24,20 @@ contains
     
   end subroutine initialize_force
 
-  subroutine calculate_force(forces, N, positions, boxes, ener_pot, init_distance)
+  subroutine calculate_force(forces, N, positions, length, ener_pot, pair_corre)
 
-    integer, intent(in) :: N, boxes
+    integer, intent(in) :: N
     real(8), intent(out) :: forces(3,N), ener_pot
     real(8), intent(in) :: positions(3,N)
-    real(8), intent(in) :: init_distance
+    real(8), intent(in) :: length
+    real(8), intent(out) :: pair_corre(nint(length*sqrt(3.0)*0.5/0.1))
 
-    real(8) :: distance(3), max, F, rsq
+    real(8), parameter :: PI = 4*atan(1.0)
+    real(8) :: distance(3), F, rsq
+    integer :: corre_dist
     integer ::i, j
 
-    max = init_distance*boxes
-    ener_pot =  0
-
+    ener_pot = 0
     forces = 0d0
 
     !write(*,*) 2*max
@@ -45,10 +46,14 @@ contains
        do j=i+1, N
           distance(:) = positions(:,j)-positions(:,i)       
           !calculates the diference in position
-          distance(:) = distance(:) - Nint(distance(:)/(max))*max
+          distance(:) = distance(:) - Nint(distance(:)/(length))*length
           !if this diferences divided by the length of the box (distance > max)
           !then it subtracts L, if is smaller Nint is 0 and doesn't do anything
           rsq = dot_product(distance, distance)
+
+          corre_dist = nint(sqrt(rsq)*10)
+          pair_corre(corre_dist) = pair_corre(corre_dist)+1/(4*PI*(0.1**3)*(corre_dist**2))
+
           if(rsq<(3.2**2)) then
              !if (rsq .lt. 1) write(*,*) "====", i, j, rsq
              F =- 24*(2/(rsq**7) - 1/(rsq**4))

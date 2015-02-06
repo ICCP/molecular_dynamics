@@ -1,5 +1,5 @@
 FC = gfortran
-FFLAGS = -Wall -Wextra -O3 #-std=f95 #-march=native
+FFLAGS = -Wall -Wextra -O3 -march=native -ffast-math #-std=f95 #-march=native
 LDFLAGS =
 #FFLAGS += $(shell pkg-config --cflags plplotd-f95)
 #LDFLAGS = $(shell pkg-config --libs plplotd-f95)
@@ -18,9 +18,11 @@ OBJS += myprog.o
 
 
 all: myprog
-
+LIBS=-L$(HOME)/XPS/lib -lxps -lX11
 myprog: $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS)
+
+
 
 #myprog.o: myprog.f90
 #	$(COMPILE) -o $@ -c $<
