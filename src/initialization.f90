@@ -25,17 +25,17 @@ contains
              position(2,n) = j*init_distance
              position(3,n) = k*init_distance
              n = n+1
-             position(1,n) = i*init_distance+2.0**(-1.0/3)!Second particle in face k=1
-             position(2,n) = j*init_distance+2.0**(-1.0/3)
+             position(1,n) = i*init_distance+init_distance**(-1.)!Second particle in face k=1
+             position(2,n) = j*init_distance+init_distance**(-1.)
              position(3,n) = k*init_distance
              n = n+1
              position(1,n) = i*init_distance            !Third in face i=1
-             position(2,n) = j*init_distance+2.0**(-1.0/3)
-             position(3,n) = k*init_distance+2.0**(-1.0/3)
+             position(2,n) = j*init_distance+init_distance**(-1.)
+             position(3,n) = k*init_distance+init_distance**(-1.)
              n = n+1
-             position(1,n) = i*init_distance+2.0**(-1.0/3)    !Fourth in face j=1
+             position(1,n) = i*init_distance+init_distance**(-1.)    !Fourth in face j=1
              position(2,n) = j*init_distance
-             position(3,n) = k*init_distance+2.0**(-1.0/3)
+             position(3,n) = k*init_distance+init_distance**(-1.)
              n = n+1
           end do
        end do
