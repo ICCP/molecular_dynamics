@@ -8,8 +8,8 @@ program ArgonGas
   implicit none
 
   integer, parameter :: particles = 864
-  real(8), parameter :: density = 0.9
-  real(8), parameter :: temp_target = 1.5
+  real(8), parameter :: density = 0.5
+  real(8), parameter :: temp_target = 1.7
 
   integer, parameter :: boxes = nint((particles/4)**(1.0/3))
   real(8), parameter :: temperature = 1.0
@@ -20,9 +20,9 @@ program ArgonGas
   real(8) :: position(3,particles), velocity(3,particles), forces(3,particles)
   real(8) :: pair_corre(nint(length*sqrt(3.0)*0.5/0.1))
   real(8) :: ener_kin, ener_pot, temp_final
-  integer :: i,j
+  integer :: i,j, flag
 
-
+  flag = 1
  ! real(8) :: v_test(3)
     
   call initialize_position(position, boxes, particles, init_distance)
@@ -33,7 +33,7 @@ program ArgonGas
   call initplot ('lightblue', 800,800, 'out.ps', 1)
   call Framing (0._8, 0._8, length, length)
   call putstopbutton()
-  call calculate_force(forces, particles, position, length, ener_pot, pair_corre)
+  call calculate_force(forces, particles, position, length, ener_pot, pair_corre, flag)
 
   open (unit=11,file='ener_kin_data.txt')
   open (unit=12,file='ener_pot_data.txt')
@@ -43,32 +43,39 @@ program ArgonGas
 
   do i = 0, number_timesteps
      velocity = velocity + forces*time_step/2.0
-     position(:,:) = position(:,:)+velocity(:,:)*time_step
-     position(:,:) = modulo(position(:,:), length)
-     call calculate_force(forces, particles, position, length, ener_pot, pair_corre)
-     velocity(:,:) = velocity(:,:) + forces(:,:)*time_step/2.0
+     position = position+velocity*time_step
+     position = modulo(position, length)
+     call calculate_force(forces, particles, position, length, ener_pot, pair_corre, flag)
+     velocity = velocity + forces*time_step/2.0
      call plot_particles(position, particles)
      call calculate_kin_energy(velocity, particles, ener_kin)
      if (modulo(i,40) == 0 .and. i<700) then     
         call constant_temperature(particles, temp_target, velocity, temp_final)
      end if
+     if (i == 700) then
+        flag = 0
+     end if
+
      write(11,*) i, ener_kin
      write(12,*) i, ener_pot
      write(13,*) i, ener_kin+ener_pot
      !write(14,*) i, sum(velocity**2)/(3*(particles-1))
-     do j = 1, nint(length*10*sqrt(3.0)*0.5/0.1)
-        write(15,*) j/10, pair_corre*2*length**3/(particles*(particles-1))
-     end do
+  end do
+
+  print *, nint(length*sqrt(3.0)*0.5/0.1)
+ 
+  do j = 1, nint(length*sqrt(3.0)*0.5/0.1)
+     print*, pair_corre(j)*2.0*(length**3)/(particles*(particles-1)) 
+     write(15,*) j/10.0, pair_corre(j)*2.0*(length**3)/(particles*(particles-1)*(number_timesteps-700))
   end do
   
-
 !!$  !Proove to velocities equal to cero
 !!$  v_test(:)=0
 !!$  do i=1, particles
 !!$     v_test(:) = v_test(:)+velocity(:,i)
 !!$  end do
 !!$  print*, v_test
-   call EndPlot()
+  call EndPlot()
 
 contains
 

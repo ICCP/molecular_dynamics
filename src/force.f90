@@ -24,9 +24,9 @@ contains
     
   end subroutine initialize_force
 
-  subroutine calculate_force(forces, N, positions, length, ener_pot, pair_corre)
+  subroutine calculate_force(forces, N, positions, length, ener_pot, pair_corre, flag)
 
-    integer, intent(in) :: N
+    integer, intent(in) :: N, flag
     real(8), intent(out) :: forces(3,N), ener_pot
     real(8), intent(in) :: positions(3,N)
     real(8), intent(in) :: length
@@ -51,8 +51,10 @@ contains
           !then it subtracts L, if is smaller Nint is 0 and doesn't do anything
           rsq = dot_product(distance, distance)
 
-          corre_dist = nint(sqrt(rsq)*10)
-          pair_corre(corre_dist) = pair_corre(corre_dist)+1/(4*PI*(0.1**3)*(corre_dist**2))
+          if (flag == 0) then
+             corre_dist = nint(sqrt(rsq)*10)
+             pair_corre(corre_dist) = pair_corre(corre_dist)+1/(4*PI*(0.1**3)*(corre_dist**2))
+          end if
 
           if(rsq<(3.2**2)) then
              !if (rsq .lt. 1) write(*,*) "====", i, j, rsq
