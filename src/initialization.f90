@@ -11,29 +11,39 @@ module initialization
 
 contains
   
-  subroutine initialize_position(position, L, num_part, init_distance)
+  subroutine initialize_position(position, num_part, density)
     
-    integer, intent(in) :: L, num_part
-    real(8), intent(in) :: init_distance
-    real(8), intent(inout) :: position(3,num_part)
+    integer, intent(in) :: num_part
+    real(8), intent(in) :: density
+    real(8), intent(out) :: position(3,num_part)
+
+    integer :: L
+    real(8) :: init_distance
     integer :: i, j, k, n=1
-    
+
+    L  = nint((num_part/4)**(1.0/3))
+    init_distance = (4.0/density)**(1.0/3)
+
     do i = 0, L-1
        do j = 0, L-1
           do k = 0, L-1
-             position(1,n) = i*init_distance            !First particle in origin
+             !First particle in origin
+             position(1,n) = i*init_distance
              position(2,n) = j*init_distance
              position(3,n) = k*init_distance
              n = n+1
-             position(1,n) = i*init_distance+init_distance/2.0!Second particle in face k=1
+             !Second particle in face k=1
+             position(1,n) = i*init_distance+init_distance/2.0
              position(2,n) = j*init_distance+init_distance/2.0
              position(3,n) = k*init_distance
              n = n+1
-             position(1,n) = i*init_distance            !Third in face i=1
+             !Third in face i=1
+             position(1,n) = i*init_distance            
              position(2,n) = j*init_distance+init_distance/2.0
              position(3,n) = k*init_distance+init_distance/2.0
              n = n+1
-             position(1,n) = i*init_distance+init_distance/2.0    !Fourth in face j=1
+             !Fourth in face j=1
+             position(1,n) = i*init_distance+init_distance/2.0    
              position(2,n) = j*init_distance
              position(3,n) = k*init_distance+init_distance/2.0
              n = n+1
@@ -43,11 +53,10 @@ contains
    
   end subroutine initialize_position
    
-  subroutine initialize_velocity(velocity, N, T)
+  subroutine initialize_velocity(velocity, N)
 
-    real(8), intent(in) :: T
     integer, intent(in) :: N
-    real(8), intent(inout) :: velocity(3,N)
+    real(8), intent(out) :: velocity(3,N)
 
     integer :: i,j
 
@@ -55,24 +64,27 @@ contains
 
     do i = 1, 3
        do j = 1, N
-          velocity(i,j) = gaussRandom(T)
+          velocity(i,j) = gaussRandom()
        end do
     end do
 
   end subroutine initialize_velocity
 
-  real(8) function gaussRandom(Temperature) result(rand_vel)
+  real(8) function gaussRandom() result(rand_vel)
     
-    real(8), intent(in) :: Temperature
+    real(8), parameter :: Temperature = 1.0
     real(8), parameter :: PI = 4*atan(1.0)
     real(8) :: random1, random2, probability
 
     call random_number(random1)
     call random_number(random2)
 
+    ! Calculate a random number between -3T/2 and 3T/2 and it probability
     random1 = random1*3.0*sqrt(Temperature) - 3.0*sqrt(Temperature)/2.0
     probability = (1/sqrt(2.0*Temperature*PI))*exp(-random1**2/(2.0*Temperature))
 
+    !if the second number is lower than the probability 
+    !you accept it, if not you do it again
     do while (probability < random2)
        call random_number(random1)
        call random_number(random2)
@@ -145,14 +157,14 @@ contains
     real(8) :: v_tot(3)
     integer :: j
 
-    v_tot(:)=0
+    v_tot = 0
 
     do j=1, N
-       v_tot(:) = v_tot(:)+velocity(:,j)
+       v_tot = v_tot + velocity(:,j)
     end do
 
     do j=1, N
-       velocity(:,j)= velocity(:,j)-v_tot(:)/N
+       velocity(:,j)= velocity(:,j) - v_tot/N
     end do
 
   end subroutine setting_cero_velocity

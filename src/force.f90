@@ -5,24 +5,8 @@ module force
   private
   
   public calculate_force
-  public initialize_force
 
 contains
-
-  subroutine initialize_force(forces, N)
-
-    integer, intent(in) :: N
-    real(8), intent(inout) :: forces(3,N)
-
-    integer :: i, j
-
-    do i = 1, N
-       do j = 1, 3 
-          forces(j,i)=0
-       end do
-    end do
-    
-  end subroutine initialize_force
 
   subroutine calculate_force(forces, N, positions, length, ener_pot, pair_corre, flag)
 
@@ -37,16 +21,14 @@ contains
     integer :: corre_dist
     integer ::i, j
 
-    ener_pot = 0
+    ener_pot = 0.0
     forces = 0d0
 
-    !write(*,*) 2*max
-    !read(*,*)
     do i=1, N - 1
        do j=i+1, N
-          distance(:) = positions(:,j)-positions(:,i)       
+          distance = positions(:,j)-positions(:,i)       
           !calculates the diference in position
-          distance(:) = distance(:) - Nint(distance(:)/(length))*length
+          distance = distance - Nint(distance/(length))*length
           !if this diferences divided by the length of the box (distance > max)
           !then it subtracts L, if is smaller Nint is 0 and doesn't do anything
           rsq = dot_product(distance, distance)
@@ -61,8 +43,8 @@ contains
              F =- 24*(2/(rsq**7) - 1/(rsq**4))
              ener_pot = ener_pot + 4*(1/(rsq**6) - 1/(rsq**3))
              !calculates the force
-             forces(:,i)=forces(:,i)+distance(:)*F
-             forces(:,j)=forces(:,j)-distance(:)*F
+             forces(:,i)=forces(:,i)+distance*F
+             forces(:,j)=forces(:,j)-distance*F
           end if
        end do
     end do
