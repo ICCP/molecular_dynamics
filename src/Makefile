@@ -18,7 +18,7 @@ OBJS += myprog.o
 
 
 all: myprog
-LIBS=-L$(HOME)/XPS/lib -lxps -lX11
+#LIBS=-L$(HOME)/XPS/lib -lxps -lX11
 myprog: $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS)
 
