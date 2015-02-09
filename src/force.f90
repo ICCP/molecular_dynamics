@@ -30,7 +30,7 @@ contains
     real(8), intent(out) :: forces(3,N), ener_pot
     real(8), intent(in) :: positions(3,N)
     real(8), intent(in) :: length
-    real(8), intent(out) :: pair_corre(nint(length*sqrt(3.0)*0.5/0.1))
+    real(8), intent(out) :: pair_corre(nint(length*sqrt(3.0)*0.5/0.01))
 
     real(8), parameter :: PI = 4*atan(1.0)
     real(8) :: distance(3), F, rsq
@@ -52,8 +52,8 @@ contains
           rsq = dot_product(distance, distance)
 
           if (flag == 0) then
-             corre_dist = nint(sqrt(rsq)*10)
-             pair_corre(corre_dist) = pair_corre(corre_dist)+1/(4*PI*(0.1**3)*(corre_dist**2))
+             corre_dist = nint(sqrt(rsq)*100)
+             pair_corre(corre_dist) = pair_corre(corre_dist)+1/(4*PI*(0.01**3)*(corre_dist**2))
           end if
 
           if(rsq<(3.2**2)) then

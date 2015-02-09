@@ -8,8 +8,8 @@ program ArgonGas
   implicit none
 
   integer, parameter :: particles = 864
-  real(8), parameter :: density = 0.5
-  real(8), parameter :: temp_target = 1.7
+  real(8), parameter :: density = 1
+  real(8), parameter :: temp_target =1
 
   integer, parameter :: boxes = nint((particles/4)**(1.0/3))
   real(8), parameter :: temperature = 1.0
@@ -18,7 +18,7 @@ program ArgonGas
   real(8), parameter :: init_distance = (4.0/density)**(1.0/3)
   real(8), parameter :: length = boxes*init_distance
   real(8) :: position(3,particles), velocity(3,particles), forces(3,particles)
-  real(8) :: pair_corre(nint(length*sqrt(3.0)*0.5/0.1))
+  real(8) :: pair_corre(nint(length*sqrt(3.0)*0.5/0.01))
   real(8) :: ener_kin, ener_pot, temp_final
   integer :: i,j, flag
 
@@ -62,11 +62,11 @@ program ArgonGas
      !write(14,*) i, sum(velocity**2)/(3*(particles-1))
   end do
 
-  print *, nint(length*sqrt(3.0)*0.5/0.1)
+  print *, nint(length*sqrt(3.0)*0.5/0.01)
  
-  do j = 1, nint(length*sqrt(3.0)*0.5/0.1)
-     print*, pair_corre(j)*2.0*(length**3)/(particles*(particles-1)) 
-     write(15,*) j/10.0, pair_corre(j)*2.0*(length**3)/(particles*(particles-1)*(number_timesteps-700))
+  do j = 1, nint(length*sqrt(3.0)*0.5/0.01)
+     !print*, pair_corre(j)*2.0*(length**3)/(particles*(particles-1)) 
+     write(15,*) j/100.0, pair_corre(j)*2.0*(length**3)/(particles*(particles-1)*(number_timesteps-700))
   end do
   
 !!$  !Proove to velocities equal to cero
