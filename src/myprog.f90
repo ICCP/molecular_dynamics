@@ -8,8 +8,8 @@ program ArgonGas
   implicit none
 
   integer, parameter :: particles = 864
-  real(8), parameter :: density = 0.4
-  real(8), parameter :: temp_target = 1.0
+  real(8), parameter :: density = 1
+  real(8), parameter :: temp_target = 1
 
   integer, parameter :: boxes = nint((particles/4)**(1.0/3))
   integer, parameter :: number_timesteps = 2000
