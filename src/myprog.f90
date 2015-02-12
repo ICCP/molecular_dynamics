@@ -7,18 +7,19 @@ program ArgonGas
 
   implicit none
 
-  integer, parameter :: particles = 2048
-  real(8), parameter :: density = 0.5
+  integer, parameter :: particles = 864
+  real(8), parameter :: density = 0.3
   real(8), parameter :: temp_target = 3
 
   integer, parameter :: boxes = nint((particles/4)**(1.0/3))
-  integer, parameter :: number_timesteps = 5000
+  integer, parameter :: number_timesteps = 2000
   real(8), parameter :: time_step = 0.004
   real(8), parameter :: length = boxes*(4.0/density)**(1.0/3)
+  real(8), parameter :: PI = 4*atan(1.0)
 
   real(8) :: position(3,particles), velocity(3,particles), forces(3,particles)
-  real(8) :: pair_corre(nint(length*sqrt(3.0)*0.5/0.01))
-  real(8) :: ener_kin, ener_pot, virial_function, pressure
+  real(8) :: pair_corre(nint(length/2*100))
+  real(8) :: ener_kin, ener_pot, pressure
 
   integer :: i,j, flag
 
@@ -41,17 +42,19 @@ program ArgonGas
   call Framing (0._8, 0._8, length, length)
   call putstopbutton()
 
-  call calculate_force(forces, particles, position, length, ener_pot, pair_corre, flag, virial_function)
+  call calculate_force(forces, particles, position, length, ener_pot, pair_corre, flag, pressure)
 
   do i = 0, number_timesteps
      velocity = velocity + forces*time_step/2.0
      position = modulo(position+velocity*time_step, length)
-     call calculate_force(forces, particles, position, length, ener_pot, pair_corre, flag, virial_function)
+     call calculate_force(forces, particles, position, length, ener_pot, pair_corre, flag, pressure)
      velocity = velocity + forces*time_step/2.0
      call plot_particles(position, particles)
      ener_kin = sum(velocity**2*0.5)
      call thermostat(particles, temp_target, velocity, i)
-     pressure = particles*temp_target/(length**3) + (virial_function/(3*particles*(length**3)))
+     pressure = pressure/(3*particles*length**3)
+     pressure = density*temp_target - pressure
+     pressure = pressure + 16/3*PI*density**2*(2/3*3.2**-9 - 3.2**-3)
 
      if (i == 700) then
         flag = 0
@@ -66,7 +69,7 @@ program ArgonGas
   pair_corre = pair_corre*2.0*(length**3)
   pair_corre = pair_corre/(particles*(particles-1))
   pair_corre = pair_corre/(number_timesteps-700)
-  do j = 1, nint(length*sqrt(3.0)*0.5/0.01)
+  do j = 1, nint(length*0.5*100)
      write(15,*) j/100.0, pair_corre(j)
   end do
 
