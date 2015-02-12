@@ -35,7 +35,7 @@ contains
           !then it subtracts L, if is smaller Nint is 0 and doesn't do anything
           rsq = dot_product(distance, distance)
 
-          if (flag == 0 .and. rsq < (length/2)**2) then
+          if (flag == 0 .and. nint(rsq*100) < nint((length/2*100)**2) ) then
              corre_dist = nint(sqrt(rsq)*100)
              pair_corre(corre_dist) = pair_corre(corre_dist)+1/(4*PI*(0.01**3)*(corre_dist**2))
           end if
