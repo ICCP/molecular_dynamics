@@ -7,12 +7,12 @@ program ArgonGas
 
   implicit none
 
-  integer, parameter :: particles = 864
+  integer, parameter :: particles = 2048
   real(8), parameter :: density = 0.8
   real(8), parameter :: temp_target = 1
 
   integer, parameter :: boxes = nint((particles/4)**(1.0/3))
-  integer, parameter :: number_timesteps = 2000
+  integer, parameter :: number_timesteps = 10000
   real(8), parameter :: time_step = 0.004
   real(8), parameter :: length = boxes*(4.0/density)**(1.0/3)
   real(8), parameter :: PI = 4*atan(1.0)
@@ -21,14 +21,12 @@ program ArgonGas
   real(8) :: pair_corre(nint(length/2*100))
   real(8) :: ener_kin, ener_pot
 
-  integer, parameter :: time_sections = 325
+  integer, parameter :: time_sections = 200
   real(8) :: pressure(number_timesteps), mp, sdp
   real(8) :: mean_preassure(int((number_timesteps-700)/time_sections))
-  real(8) :: std_dev(int((number_timesteps-700)/time_sections))
 
   integer :: i,j, flag
 
-  print* , int((number_timesteps-700)/time_sections), (number_timesteps-700.0)/time_sections
   flag = 1
     
   call initialize_position(position, particles, density)
@@ -73,6 +71,7 @@ program ArgonGas
      write(16,*) i, pressure(i)
   end do
  
+  !calculo del pair correlation
   pair_corre = pair_corre*2.0*(length**3)
   pair_corre = pair_corre/(particles*(particles-1))
   pair_corre = pair_corre/(number_timesteps-700)
@@ -83,28 +82,25 @@ program ArgonGas
 
   !calculo de la presion promedio y de la desviacion estandar
   mean_preassure = 0d0
-  std_dev = 0d0
   i=1
   mp = 0.0
   sdp = 0.0
   do j = 700,  number_timesteps
      mean_preassure(i) = mean_preassure(i) + pressure(j)
-     std_dev(i) = std_dev(i) + pressure(j)**2
      if (modulo(j-700+1, time_sections) == 0) then
         mean_preassure(i) = mean_preassure(i) / time_sections
-        std_dev(i) = std_dev(i) / time_sections
-        std_dev(i) = std_dev(i)-mean_preassure(i)**2
-        mp = mp + mean_preassure(i)
-        sdp = sdp + sqrt(std_dev(i))
-        print*, j, mean_preassure(i), sqrt(std_dev(i))
         i = i+1
      end if
   end do
 
-  mp = mp/int((number_timesteps-700)/time_sections)
-  sdp = sdp/sqrt(1.0*int((number_timesteps-700)/time_sections))
+  mp = sum(mean_preassure)/(i-1)
+  sdp = dot_product(mean_preassure, mean_preassure)/(i-1)
+  sdp = sdp-(mp)**2
+  sdp = sqrt(sdp/(i-1))
+  print*, "Average preassure:", mp
+  print*, "Standar error of mean:", sdp
 
-  print*, mp, sqrt(sdp)
+!  print*, "this is the end"
   
   call EndPlot()
 
