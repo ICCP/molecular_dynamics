@@ -4,24 +4,23 @@ module energy
 
   private
 
-  public calculate_kin_energy
+  public write_energy
 
 contains
 
-  subroutine calculate_kin_energy(velocity, particles, ener_kin)
+  subroutine write_energy(N, velo, ener_pot, i)
 
-    integer, intent(in) :: particles
-    real(8), intent(in) :: velocity(3,particles)
-    real(8), intent(out) :: ener_kin
+    integer, intent(in) :: N, i
+    real(8), intent(in) :: velo(3,N)
+    real(8), intent(in) :: ener_pot
 
-    ener_kin = sum(velocity**2*0.5)
+    real(8) :: ener_kin
 
-!!$    ener_kin = 0
-!!$
-!!$    do i = 1, particles
-!!$       ener_kin = ener_kin +(0.5)*norm2(velocity(:,i))**2
-!!$    end do
+    ener_kin = sum(velo**2*0.5)
+    write(11,*) i, ener_kin
+    write(12,*) i, ener_pot
+    write(13,*) i, ener_kin+ener_pot
 
-  end subroutine calculate_kin_energy
+  end subroutine write_energy
 
 end module energy

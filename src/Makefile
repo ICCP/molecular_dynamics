@@ -11,9 +11,11 @@ LINK = $(FC) $(LDFLAGS)
 OBJS =
 #OBJS += md_plot.o
 OBJS += initialization.o
+OBJS += pressure.o
+OBJS += pair_correl.o
 OBJS += force.o
 OBJS += energy.o
-OBJS += const_temp.o
+OBJS += time_evol.o
 OBJS += myprog.o
 
 

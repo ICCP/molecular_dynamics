@@ -2,14 +2,56 @@ module initialization
 
   implicit none
 
+  private open_files
+  private initialize_position
+  private initialize_velocity
+  private setting_cero_velocity
   private gaussRandom
   private init_random_seed
 
-  public initialize_position
-  public initialize_velocity
-  public setting_cero_velocity
+  public Initialize_problem
+
 
 contains
+
+  subroutine Initialize_problem( N, d, posi, velo, forc)
+
+    integer, intent(in) :: N
+    real(8), intent(in) :: d
+    real(8), intent(out) :: posi(3,N)
+    real(8), intent(out) :: velo(3,N)
+    real(8), intent(out) :: forc(3,N)
+
+    integer :: boxes
+    real(8) :: length
+
+    boxes = nint((N/4)**(1.0/3))
+    length = boxes*(4.0/d)**(1.0/3)
+
+    forc = 0._8
+
+    call open_files()
+
+!!$    call initplot ('lightblue', 800,800, 'out.ps', 1)
+!!$    call Framing (0._8, 0._8, length, length)
+!!$    call putstopbutton()
+
+    call initialize_position(posi, N, d)
+    call initialize_velocity(velo, N)
+    call setting_cero_velocity(velo, N)
+  
+  end subroutine Initialize_problem
+
+  subroutine open_files()
+    
+    open (unit=11,file='ener_kin_data.txt')
+    open (unit=12,file='ener_pot_data.txt')
+    open (unit=13,file='ener_tot_data.txt')
+    open (unit=14,file='temp_final_data.txt')
+    open (unit=15,file='pair_corre_data.txt')
+    open (unit=16,file='pressure_data.txt')
+    
+  end subroutine open_files
   
   subroutine initialize_position(position, num_part, density)
     
