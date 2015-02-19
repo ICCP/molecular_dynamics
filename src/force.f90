@@ -44,7 +44,7 @@ contains
              forces(:,j)=forces(:,j)-distance*F
              
              ener_pot = ener_pot + 4*(1/(rsq**6) - 1/(rsq**3))            
-             pressure = pressure + rsq*F
+             pressure = pressure - rsq*F
           end if
           
        end do

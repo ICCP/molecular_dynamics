@@ -9,9 +9,9 @@ program ArgonGas
 
   implicit none
 
-  integer, parameter :: num_particles = 2048
-  real(8), parameter :: density = 1.2
-  real(8), parameter :: temp_target = 0.5
+  integer, parameter :: num_particles = 864
+  real(8), parameter :: density = 0.88
+  real(8), parameter :: temp_target = 1.095
 
   integer, parameter :: number_timesteps = 2000
 
