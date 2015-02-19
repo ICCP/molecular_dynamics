@@ -1,0 +1,268 @@
+import numpy as np
+import random
+import matplotlib.pyplot as plt
+import mpl_toolkits.mplot3d.axes3d as p3
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.animation as animation
+import matplotlib.cm as cm
+import time
+
+#Time the code
+start_time = time.clock()
+
+# Input parameters
+global A, N, L, V, dens, T, m, Sig, Eps, t, state
+
+#Physical constants
+dens = 1.0   #Density
+T=0.2         #Temperature
+m=1.0         #Particle mass
+Sig=1        #Sigma in Lennard-Jones potential 0.3345e-9
+Eps=1        #Epsilon in Lennard-Jones potential eps/kb 125.7 K
+
+#System sizes
+A = 3              #Number of FCC boxes
+N = 4*A**3          #Number of atoms
+L=(N/dens)**(1.0/3) #Length of the box in all three directions
+V=L**3              #Box volume
+
+#Computational parameters
+state = 1      #State of the system: 0 for animation, 1 for correlation
+t_final = 50    #Amount of steps of delta_t
+Rc= L/2.1      #Cutoff radius #L/2.1   #should be about 5*Sig
+delta_t=0.004  #Time-step
+
+delta_r=0.02                        #Shell width for correlation function
+b=(L/2.)/delta_r-((L/2.)/delta_r)%1 #Number of Correlation function bins
+
+############################################################
+
+#Generate initial positions in FCC lattice for all N particles
+def init_position(A, L):
+  position = np.zeros((N,3),dtype=float)
+  k = 0
+  l = 0
+  m = 0
+  cnt = 0
+  for k in range(A):
+    for l in range(A):
+      for m in range(A):
+        position[cnt,:] = [k, l, m]
+        position[cnt+1,:] = [k+0.5, l+0.5, m]
+        position[cnt+2,:] = [k+0.5, l, m+0.5]
+        position[cnt+3,:] = [k, l+0.5, m+0.5]
+        cnt = cnt + 4
+  position = position*L/A
+  return position
+
+############################################################
+
+#Generate initial momenta with a gaussian distribution for all N particles
+def init_momenta(T,N):
+  mu=0
+  sigma=(2*T)**(1.0/2)
+
+  momenta = np.random.normal(mu,sigma,(N,3))
+
+  avg = np.zeros((3),dtype=float)
+  for i in range(0, 3):
+    avg[i] = sum(momenta[:,i]/N)
+    momenta[:,i] = [j - avg[i] for j in momenta[:,i]]
+  return momenta
+
+############################################################
+########################CHECKS##############################
+############################################################
+
+# Momenta Conservation Check
+def check_mom(momenta):
+    total_mom=np.zeros((3),dtype=float)
+    for x in range(3):
+        total_mom[x]=sum(momenta[:,x])
+
+    return total_mom
+
+############################################################
+####################ITERATIVE PROCESS#######################
+############################################################
+
+#Calculates the Lennard Jones Force for all particles
+def calc_force(position, momenta,N,Sig,Eps):
+  #Initializing all arrays and numbers, calling neccesary functions
+  force_v=np.zeros((N,3),dtype=float)
+  V=0.0
+ 
+  mom_abssq=np.sum(momenta*momenta,axis=1)
+
+  for i in range(1,N):
+    dist=position[i,:]-position[:i,:]
+    dist[dist>(L/2.0)]-=L
+    dist[dist<-(L/2.0)]+=L
+
+    dist_abs=np.sum(dist*dist,axis=1)
+    
+    force = -24.0*Eps*(Sig**6.0*dist_abs**(-4.0)-2.0*Sig**12.0*dist_abs**(-7.0))
+
+    force_temp=dist*force[:,np.newaxis]
+    force_v[:i,:]-=force_temp
+    force_v[i,:] = np.sum(force_temp,axis=0)
+    
+    V += np.sum(4.0*Eps*((Sig/dist_abs)**6.0-(Sig/dist_abs)**3.0))
+  
+  
+  K=np.sum((0.5/m*mom_abssq),axis=0)
+  total_E = V + K
+
+  return force_v, V, total_E, K
+
+############################################################
+
+####################################################################
+
+#The correlation function
+def cor_func(position,L,N):
+  #Initialize arrays
+  dist=np.zeros((3),dtype=float)
+  dist_abs=np.zeros((N),dtype=float)
+  #Choose one particle
+  for i in range(N):
+    dist=position[i]-position[0]
+    #If particles are L/2 or more away, put them at the other side of the box.
+    dist[dist>=(L/2.)]-=L
+    dist[dist<-(L/2.)]+=L
+    dist_abs[i]=sum(dist*dist)**1/2
+  return dist_abs
+
+#####################################################################
+
+##Iteration definition for correlation function
+#def iteration_cor(position,momenta,force,delta_t,N,L):
+#  position=calc_newpos(position,momenta,force,delta_t,N,L)
+#  force=calc_force(N,Sig,Eps)
+#  momenta=calc_newmom(momenta,force,delta_t,N,L)
+#  #Make a histogram
+#  hist=np.histogram(cor_func(position,L,N)[1:N],bins=b,density=True)
+#  #Plot the histogram
+#  xhist=hist[1]
+#  yhist=np.concatenate(([0],hist[0]),axis=1)/(4*np.pi*np.multiply(hist[1],hist[1]))
+#  fig=plt.plot(xhist,yhist)
+#  plt.show()
+#  print(time.clock()-start_time)
+#  return position
+
+#Putting together all iterative steps
+def iteration(position,momenta,force,initial_E, initial_V,delta_t,N,L):
+
+    #Verlet's Theorem
+    momenta += 0.5*force*delta_t
+    position += momenta*delta_t
+    force, V, total_E, K=calc_force(position,momenta,N,Sig,Eps)
+    momenta += 0.5*force*delta_t
+    
+    if state==1:
+      ########################
+      # Correlation function
+      #plt.clear()
+      #Make a histogram
+      hist=np.histogram(cor_func(position,L,N)[1:N],bins=b,density=True)
+      #Plot the histogram
+      xhist=hist[1]
+      yhist=np.concatenate(([0],hist[0]),axis=1)/(4*np.pi*np.multiply(hist[1],hist[1]))
+      fig=plt.plot(xhist,yhist)
+      plt.show()
+      ########################
+    
+    elif state==0:
+      ax.clear()
+      ax.set_xlim3d([0.0, L])
+      ax.set_xlabel('X')
+      ax.set_ylim3d([0.0, L])
+      ax.set_ylabel('Y')
+      ax.set_zlim3d([0.0, L])
+      ax.set_zlabel('Z')
+      ax.set_title('3D Test')
+      
+    #Fluctuations in the potential energy
+    fluc_V=abs(initial_V-V)
+    print("V",V,"K",K,"E",total_E)
+
+    # Checking conservation laws
+    total_mom=check_mom(momenta)
+    if sum(total_mom) > 1e-13:
+        print("MOMENTA IS NOT CONSERVED")
+
+    #if abs(initial_E-total_E) > fluc_V:
+        #print("ENERGY IS NOT CONSERVED")
+       
+    return position, momenta, force, total_E
+
+############################################################
+
+ # Animation function
+def animate(t_final, position, momenta, force, delta_t, initial_V, initial_E):
+
+    position=iteration(position, momenta,
+                       force, initial_E,
+                       initial_V, delta_t, N, L)[0]
+    ax.scatter(position[:,0], position[:,1], position[:,2], s=150)
+
+    return position
+
+############################################################
+
+# Initial plot
+def init_plot():
+
+    position=init_position(A,L)
+    ax.scatter(position[:,0], position[:,1], position[:,2], s=150, c='r')
+    return position
+
+############################################################
+########################Main Run############################
+############################################################
+
+
+position = init_position(A, L)
+momenta = init_momenta(T,N)
+force, initial_E, initial_V, initial_K = calc_force(position,momenta,N,Sig,Eps)
+print("Initial energy", initial_E)
+print("Initial potential", initial_V)
+
+#############################################################################
+#########################ANIMATION OR CORRELATION############################
+#############################################################################
+
+if state==0:
+    #Initializing the plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Setting the axes properties
+    ax.set_xlim3d([0.0, L])
+    ax.set_xlabel('X')
+
+    ax.set_ylim3d([0.0, L])
+    ax.set_ylabel('Y')
+
+    ax.set_zlim3d([0.0, L])
+    ax.set_zlabel('Z')
+
+    ax.set_title('3D Test')
+
+    # Creating the Animation object
+    line_ani = animation.FuncAnimation(fig, animate, t_final,
+                                       fargs=(position, momenta,
+                                              force,delta_t, initial_V, initial_E),
+                                       save_count=None,
+                                       init_func=init_plot, blit=False)
+    # Show the animation
+    plt.show()
+
+elif state==1:
+    #Make the iterative process run on its own
+    for t in range(t_final):
+        position = iteration(position,momenta,force,initial_E, initial_V,delta_t,N,L)[0]
+
+
+#Print the global caltulation time
+#print("Time(s):", time.clock() - start_time)
