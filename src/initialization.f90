@@ -1,5 +1,7 @@
 module initialization
 
+  use global
+
   implicit none
 
   private open_files
@@ -14,31 +16,19 @@ module initialization
 
 contains
 
-  subroutine Initialize_problem( N, d, posi, velo, forc)
+  subroutine Initialize_problem()
 
-    integer, intent(in) :: N
-    real(8), intent(in) :: d
-    real(8), intent(out) :: posi(3,N)
-    real(8), intent(out) :: velo(3,N)
-    real(8), intent(out) :: forc(3,N)
-
-    integer :: boxes
-    real(8) :: length
-
-    boxes = nint((N/4)**(1.0/3))
-    length = boxes*(4.0/d)**(1.0/3)
-
-    forc = 0._8
+    forces = 0._8
 
     call open_files()
 
 !!$    call initplot ('lightblue', 800,800, 'out.ps', 1)
 !!$    call Framing (0._8, 0._8, length, length)
 !!$    call putstopbutton()
-
-    call initialize_position(posi, N, d)
-    call initialize_velocity(velo, N)
-    call setting_cero_velocity(velo, N)
+    call initialize_variables()
+    call initialize_position()
+    call initialize_velocity()
+    call setting_cero_velocity()
   
   end subroutine Initialize_problem
 
@@ -52,23 +42,24 @@ contains
     open (unit=16,file='pressure_data.txt')
     
   end subroutine open_files
-  
-  subroutine initialize_position(position, num_part, density)
-    
-    integer, intent(in) :: num_part
-    real(8), intent(in) :: density
-    real(8), intent(out) :: position(3,num_part)
 
-    integer :: L
+  subroutine initialize_variables()
+
+    boxes = nint((num_particles/4)**(1.0/3))
+    length = boxes*(4.0/density)**(1.0/3)
+
+  end subroutine initialize_variables
+  
+  subroutine initialize_position()
+    
     real(8) :: init_distance
     integer :: i, j, k, n=1
 
-    L  = nint((num_part/4)**(1.0/3))
-    init_distance = (4.0/density)**(1.0/3)
+    init_distance = length/boxes
 
-    do i = 0, L-1
-       do j = 0, L-1
-          do k = 0, L-1
+    do i = 0, boxes-1
+       do j = 0, boxes-1
+          do k = 0, boxes-1
              !First particle in origin
              position(1,n) = i*init_distance
              position(2,n) = j*init_distance
@@ -95,17 +86,14 @@ contains
    
   end subroutine initialize_position
    
-  subroutine initialize_velocity(velocity, N)
-
-    integer, intent(in) :: N
-    real(8), intent(out) :: velocity(3,N)
+  subroutine initialize_velocity()
 
     integer :: i,j
 
     call init_random_seed
 
     do i = 1, 3
-       do j = 1, N
+       do j = 1, num_particles
           velocity(i,j) = gaussRandom()
        end do
     end do
@@ -115,7 +103,6 @@ contains
   real(8) function gaussRandom() result(rand_vel)
     
     real(8), parameter :: Temperature = 1.0
-    real(8), parameter :: PI = 4*atan(1.0)
     real(8) :: random1, random2, probability
 
     call random_number(random1)
@@ -192,21 +179,19 @@ contains
 
   end subroutine init_random_seed
 
-  subroutine setting_cero_velocity(velocity, N)
+  subroutine setting_cero_velocity()
 
-    integer , intent(in) :: N
-    real(8), intent(inout) :: velocity(3,N)
     real(8) :: v_tot(3)
     integer :: j
 
     v_tot = 0
 
-    do j=1, N
+    do j=1, num_particles
        v_tot = v_tot + velocity(:,j)
     end do
 
-    do j=1, N
-       velocity(:,j)= velocity(:,j) - v_tot/N
+    do j=1, num_particles
+       velocity(:,j)= velocity(:,j) - v_tot/num_particles
     end do
 
   end subroutine setting_cero_velocity

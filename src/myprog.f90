@@ -1,5 +1,6 @@
 program ArgonGas
 
+  use global
   use initialization
   use time_evol
   use force
@@ -9,19 +10,9 @@ program ArgonGas
 
   implicit none
 
-  integer, parameter :: num_particles = 864
-  real(8), parameter :: density = 0.88
-  real(8), parameter :: temp_target = 1.095
-
-  integer, parameter :: number_timesteps = 2000
-
-  real(8) :: position(3,num_particles)
-  real(8) :: velocity(3,num_particles)
-  real(8) :: forces(3,num_particles)
-
-  call Initialize_problem(num_particles, density, position, velocity, forces) 
+  call Initialize_problem() 
     
-  call Time_evolution(num_particles, density, temp_target, number_timesteps, position, velocity, forces)!, pair_corre, pressure)
+  call Time_evolution()!, pair_corre, pressure)
 
 !!$  call EndPlot()
 

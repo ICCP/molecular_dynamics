@@ -1,5 +1,6 @@
 module force
 
+  use global
   use pair_correl
 
   implicit none
@@ -10,12 +11,10 @@ module force
 
 contains
 
-  subroutine relation_part(forces, N, positions, length, ener_pot, pair_corre, flag, pressure)
+  subroutine relation_part(ener_pot, pair_corre, flag, pressure)
 
-    integer, intent(in) :: N, flag
-    real(8), intent(out) :: forces(3,N), ener_pot
-    real(8), intent(in) :: positions(3,N)
-    real(8), intent(in) :: length
+    integer, intent(in) :: flag
+    real(8), intent(out) :: ener_pot
     real(8), intent(out) :: pair_corre(nint(length/2*100))
     real(8), intent(out) :: pressure
 
@@ -26,10 +25,10 @@ contains
     forces = 0._8
     pressure = 0._8
 
-    do i=1, N - 1
-       do j=i+1, N
+    do i=1, num_particles - 1
+       do j=i+1, num_particles
 
-          distance = positions(:,j)-positions(:,i)       
+          distance = position(:,j)-position(:,i)       
           !calculates the diference in position
           distance = distance - Nint(distance/(length))*length
           !if this diferences divided by the length of the box (distance > max)

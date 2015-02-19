@@ -10,6 +10,7 @@ LINK = $(FC) $(LDFLAGS)
 
 OBJS =
 #OBJS += md_plot.o
+OBJS += global.o
 OBJS += initialization.o
 OBJS += pressure.o
 OBJS += pair_correl.o
