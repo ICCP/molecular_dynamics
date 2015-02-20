@@ -18,17 +18,20 @@ contains
 
   subroutine Initialize_problem()
 
-    forces = 0._8
 
     call open_files()
+    call initialize_position()
+    call initialize_velocity()
+    call setting_cero_velocity()
+    pair_corr = 0._8
+    pressures = 0._8
+    pot_energy = 0._8
+    kin_energy = 0._8
+    flag = 1
 
 !!$    call initplot ('lightblue', 800,800, 'out.ps', 1)
 !!$    call Framing (0._8, 0._8, length, length)
 !!$    call putstopbutton()
-    call initialize_variables()
-    call initialize_position()
-    call initialize_velocity()
-    call setting_cero_velocity()
   
   end subroutine Initialize_problem
 
@@ -42,14 +45,7 @@ contains
     open (unit=16,file='pressure_data.txt')
     
   end subroutine open_files
-
-  subroutine initialize_variables()
-
-    boxes = nint((num_particles/4)**(1.0/3))
-    length = boxes*(4.0/density)**(1.0/3)
-
-  end subroutine initialize_variables
-  
+ 
   subroutine initialize_position()
     
     real(8) :: init_distance
@@ -100,7 +96,7 @@ contains
 
   end subroutine initialize_velocity
 
-  real(8) function gaussRandom() result(rand_vel)
+  real(8) function gaussRandom() result (rand_vel)
     
     real(8), parameter :: Temperature = 1.0
     real(8) :: random1, random2, probability
@@ -108,7 +104,7 @@ contains
     call random_number(random1)
     call random_number(random2)
 
-    ! Calculate a random number between -3T/2 and 3T/2 and it probability
+    ! Calculate a random number between -3T/2 and 3T/2 and its probability
     random1 = random1*3.0*sqrt(Temperature) - 3.0*sqrt(Temperature)/2.0
     probability = (1/sqrt(2.0*Temperature*PI))*exp(-random1**2/(2.0*Temperature))
 

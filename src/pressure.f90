@@ -7,7 +7,6 @@ module pressure
   private
   
   public mean_and_std_dev
-  public print_press
 
 contains
   
@@ -40,15 +39,5 @@ contains
     std = sqrt(std/(i-1))
     
   end subroutine mean_and_std_dev
-  
-  subroutine print_press(pressure, i)
-    
-    real(8), intent(inout) :: pressure
-    integer, intent(in) :: i
-
-    write(16,*) i, pressure
-    
-  end subroutine print_press
-
 
 end module pressure

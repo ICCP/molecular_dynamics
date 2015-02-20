@@ -12,7 +12,7 @@ program ArgonGas
 
   call Initialize_problem() 
     
-  call Time_evolution()!, pair_corre, pressure)
+  call Time_evolution()
 
 !!$  call EndPlot()
 

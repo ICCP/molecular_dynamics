@@ -6,22 +6,23 @@ module energy
 
   private
 
-  public write_energy
+  public write_energy_pressure
 
 contains
 
-  subroutine write_energy(ener_pot, i)
+  subroutine write_energy_pressure()
+    
+    integer :: i
 
-    integer, intent(in) :: i
-    real(8), intent(in) :: ener_pot
+    do i = 1, number_timesteps
 
-    real(8) :: ener_kin
+       write(11,*) i, kin_energy(i)
+       write(12,*) i, pot_energy(i)
+       write(13,*) i, kin_energy(i)+pot_energy(i)
+       write(16,*) i, pressures(i)
 
-    ener_kin = sum(velocity**2*0.5)
-    write(11,*) i, ener_kin
-    write(12,*) i, ener_pot
-    write(13,*) i, ener_kin+ener_pot
+    end do
 
-  end subroutine write_energy
+  end subroutine write_energy_pressure
 
 end module energy

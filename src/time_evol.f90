@@ -8,6 +8,7 @@ module time_evol
 
   implicit none
 
+  private Verlert_alg
   private thermostat
 !!$  private plot_particles
 
@@ -17,32 +18,25 @@ contains
 
   subroutine Time_evolution()
 
-    real(8) :: pair_corre(nint(length/2*100))
-    real(8) :: pressure(number_timesteps)
     
-    real(8) :: ener_pot
     real(8) :: mean_pressure, stdev_pressure
     integer :: i, flag
     
     flag = 1
-    pair_corre = 0d0
-    call relation_part(ener_pot, pair_corre, flag, pressure(1))
+    call relation_part(1)
 
     do i = 1, number_timesteps
-       velocity = velocity + forces*time_step/2.0
-       position = modulo(position+velocity*time_step, length)
-       call relation_part(ener_pot, pair_corre, flag, pressure(i))
-       velocity = velocity + forces*time_step/2.0
-       
-       call write_energy(ener_pot, i)
-       call thermostat(i, flag)
-       call print_press(pressure(i), i)
+       call Verlert_alg(i)
+       kin_energy(i) = sum(velocity**2*0.5)
+       call thermostat(i)
 !!$       call plot_particles()
     end do
     
-    call print_pair_corre(pair_corre)
+    call write_energy_pressure()
+ 
+    call print_pair_corre()
     
-    call mean_and_std_dev(pressure, 300, mean_pressure, stdev_pressure)
+    call mean_and_std_dev(pressures, 300, mean_pressure, stdev_pressure)
 
     mean_pressure = mean_pressure/(3*num_particles*temp_target)
     mean_pressure = 1 + mean_pressure
@@ -54,23 +48,33 @@ contains
     
   end subroutine Time_evolution
 
-  subroutine thermostat(steps, flag)
+  subroutine Verlert_alg(i)
+
+    integer, intent(in) :: i
+
+    velocity = velocity + forces*time_step/2.0
+    position = modulo(position+velocity*time_step, length)
+    call relation_part(i)
+    velocity = velocity + forces*time_step/2.0
+    
+  end subroutine Verlert_alg
+
+  subroutine thermostat(steps)
 
     integer, intent(in) :: steps
-    integer, intent(out) :: flag
-
 
     real(8) :: temp_final
 
     temp_final = sum(velocity**2)/(3*(num_particles-1))
-    flag = 0
-
+ 
     if(steps < 700) then
-       flag = 1
        if(modulo(steps,40) == 0) then    
           velocity = velocity*sqrt(temp_target/temp_final)
        end if
+    else if(steps == 700) then
+       flag = 0
     end if
+
 
     write (14,*) steps, temp_final
     
