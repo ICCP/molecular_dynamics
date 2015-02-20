@@ -2,12 +2,14 @@ module global
 
   implicit none
 
-  integer, parameter :: num_particles = 864
+  integer, parameter :: num_particles = 500
   real(8), parameter :: density = 0.88
-  real(8), parameter :: temp_target = 1.095
+  real(8), parameter :: temp_target = 1
 
   integer, parameter :: number_timesteps = 2000
   real(8), parameter :: time_step = 0.004
+  real(8), parameter :: r_cutoff = 3.2
+  integer, parameter :: time_cut = 500
 
   real(8) :: position(3,num_particles)
   real(8) :: velocity(3,num_particles)
@@ -22,7 +24,7 @@ module global
   real(8) :: pressures(number_timesteps)
 
   real(8) :: pot_energy(number_timesteps)
-  real(8) :: kin_energy(number_timesteps)
+  real(8) :: vel_sqr(number_timesteps)
   
 contains 
 

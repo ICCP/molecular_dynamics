@@ -21,6 +21,7 @@ contains
        corre_dist = nint(sqrt(rsq)*100)
        if(corre_dist <= nint(length/2*100) ) then
           pair_corr(corre_dist) = pair_corr(corre_dist)+1/(4*PI*(0.01**3)*(corre_dist**2))
+          ! 0.1 is the delta r
        end if
     end if
 
@@ -32,7 +33,7 @@ contains
  
     pair_corr = pair_corr*2.0*(length**3)
     pair_corr = pair_corr/(num_particles*(num_particles-1))
-    pair_corr = pair_corr/(number_timesteps-700)
+    pair_corr = pair_corr/(number_timesteps-time_cut)
     
     do j = 1, nint(length*0.5*100)
        write(15,*) j/100.0, pair_corr(j)

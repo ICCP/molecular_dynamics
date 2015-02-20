@@ -30,7 +30,7 @@ contains
           !then it subtracts L, if is smaller Nint is 0 and doesn't do anything
           rsq = dot_product(distance, distance)
           call calc_pair_corre(rsq)          
-          if(rsq<(3.2**2)) then
+          if(rsq<(r_cutoff**2)) then
              F =- 24*(2/(rsq**7) - 1/(rsq**4))
              forces(:,i)=forces(:,i)+distance*F
              forces(:,j)=forces(:,j)-distance*F

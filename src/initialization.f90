@@ -26,12 +26,12 @@ contains
     pair_corr = 0._8
     pressures = 0._8
     pot_energy = 0._8
-    kin_energy = 0._8
+    vel_sqr = 0._8
     flag = 1
 
-!!$    call initplot ('lightblue', 800,800, 'out.ps', 1)
-!!$    call Framing (0._8, 0._8, length, length)
-!!$    call putstopbutton()
+    call initplot ('lightblue', 800,800, 'out.ps', 1)
+    call Framing (0._8, 0._8, length, length)
+    call putstopbutton()
   
   end subroutine Initialize_problem
 
@@ -88,8 +88,9 @@ contains
 
     call init_random_seed
 
-    do i = 1, 3
-       do j = 1, num_particles
+
+    do j = 1, num_particles
+       do i = 1, 3
           velocity(i,j) = gaussRandom()
        end do
     end do
