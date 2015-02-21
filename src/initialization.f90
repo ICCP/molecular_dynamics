@@ -29,9 +29,9 @@ contains
     vel_sqr = 0._8
     flag = 1
 
-    call initplot ('lightblue', 800,800, 'out.ps', 1)
-    call Framing (0._8, 0._8, length, length)
-    call putstopbutton()
+!!$    call initplot ('lightblue', 800,800, 'out.ps', 1)
+!!$    call Framing (0._8, 0._8, length, length)
+!!$    call putstopbutton()
   
   end subroutine Initialize_problem
 

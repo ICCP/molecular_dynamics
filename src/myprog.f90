@@ -17,6 +17,6 @@ program ArgonGas
   call calc_print_mean_press()
   call calc_print_heat_capac()
 
-  call EndPlot()
+!!$  call EndPlot()
 
 end program ArgonGas

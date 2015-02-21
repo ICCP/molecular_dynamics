@@ -31,14 +31,21 @@ contains
   subroutine calc_print_heat_capac()
 
     real(8) :: mean_kinen, variance_kinen
-    integer :: time_sec = 200
+    integer :: time_sec = 200, i
 
-    call mean_and_std_dev(pot_energy, time_sec, mean_kinen, variance_kinen)
+    mean_kinen = 0._8
+    variance_kinen = 0._8
 
-    variance_kinen = variance_kinen**2*int((number_timesteps-time_cut)/time_sec)
+    do i = time_cut, number_timesteps
+       mean_kinen = mean_kinen + vel_sqr(i)
+       variance_kinen = variance_kinen + vel_sqr(i)**2
+    end do
 
-    print*, mean_kinen, variance_kinen
-    print*, "Heat Capacitance (cv):", (2/(3*num_particles)-variance_kinen/mean_kinen**2)**(-1)/num_particles
+    mean_kinen = mean_kinen/(number_timesteps-time_cut+1)
+    variance_kinen = variance_kinen/(number_timesteps-time_cut+1)
+    variance_kinen = variance_kinen - (mean_kinen)**2
+
+    print*, "Heat Capacitance (cv):", (2._8/(3.0*num_particles)-variance_kinen/mean_kinen**2)**(-1)/num_particles
 
   end subroutine calc_print_heat_capac
 

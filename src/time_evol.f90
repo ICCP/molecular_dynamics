@@ -10,7 +10,7 @@ module time_evol
 
   private Verlert_alg
   private thermostat
-  private plot_particles
+!!$  private plot_particles
 
   public Time_evolution
 
@@ -29,7 +29,7 @@ contains
        call Verlert_alg(i)
        vel_sqr(i) = sum(velocity**2)
        call thermostat(i)
-       call plot_particles()
+!!$       call plot_particles()
     end do
     
   end subroutine Time_evolution
