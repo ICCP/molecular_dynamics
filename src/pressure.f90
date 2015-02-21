@@ -47,10 +47,12 @@ contains
 
   end subroutine mean_and_std_dev
 
-  subroutine calc_print_mean_press(mean_pressure, error_pressure)
+  subroutine calc_print_mean_press()
 
-    real(8), intent(inout) :: mean_pressure, error_pressure
+    real(8) :: mean_pressure, error_pressure
     
+    call mean_and_std_dev(pressures, 300, mean_pressure, error_pressure)
+
     mean_pressure = mean_pressure/(3*num_particles*temp_target)
     mean_pressure = 1 + mean_pressure
     mean_pressure = mean_pressure + 16*PI*num_particles/(3*length**3*temp_target)*(2/3*3.2**(-9)-3.2**(-3))

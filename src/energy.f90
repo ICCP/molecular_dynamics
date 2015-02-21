@@ -1,12 +1,14 @@
 module energy
 
   use global
+  use pressure
 
   implicit none
 
   private
 
   public write_files
+  public calc_print_heat_capac
 
 contains
 
@@ -25,5 +27,19 @@ contains
     end do
 
   end subroutine write_files
+
+  subroutine calc_print_heat_capac()
+
+    real(8) :: mean_kinen, variance_kinen
+    integer :: time_sec = 200
+
+    call mean_and_std_dev(pot_energy, time_sec, mean_kinen, variance_kinen)
+
+    variance_kinen = variance_kinen**2*int((number_timesteps-time_cut)/time_sec)
+
+    print*, mean_kinen, variance_kinen
+    print*, "Heat Capacitance (cv):", (2/(3*num_particles)-variance_kinen/mean_kinen**2)**(-1)/num_particles
+
+  end subroutine calc_print_heat_capac
 
 end module energy
