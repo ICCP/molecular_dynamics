@@ -1,0 +1,4 @@
+864 number of particles
+0.88 density
+1 Temperature
+2000 number of time steps
