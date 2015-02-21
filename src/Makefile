@@ -33,4 +33,4 @@ myprog: $(OBJS)
 
 .PHONY: clean
 clean:
-	$(RM) myprog $(OBJS) *.mod *.png *.txt
+	$(RM) myprog $(OBJS) *.mod *.png

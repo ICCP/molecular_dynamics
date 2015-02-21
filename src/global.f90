@@ -2,29 +2,29 @@ module global
 
   implicit none
 
-  integer, parameter :: num_particles = 864
-  real(8), parameter :: density = 0.88
-  real(8), parameter :: temp_target = 1
+  integer :: num_particles = 864
+  real(8) :: density = 0.88
+  real(8) :: temp_target = 1
 
-  integer, parameter :: number_timesteps = 2000
+  integer :: number_timesteps = 2000
   real(8), parameter :: time_step = 0.004
   real(8), parameter :: r_cutoff = 3.2
   integer, parameter :: time_cut = 500
 
-  real(8) :: position(3,num_particles)
-  real(8) :: velocity(3,num_particles)
-  real(8) :: forces(3,num_particles)
+  real(8), allocatable :: position(:,:)
+  real(8), allocatable :: velocity(:,:)
+  real(8), allocatable :: forces(:,:)
 
   real(8), parameter :: PI = 4*atan(1.0)
-  integer, parameter :: boxes = nint((num_particles/4)**(1.0/3))
-  real(8), parameter :: length = boxes*(4.0/density)**(1.0/3)
+  integer :: boxes
+  real(8) :: length
   integer :: flag
 
-  real(8) :: pair_corr(nint(length/2*100))
-  real(8) :: pressures(number_timesteps)
+  real(8), allocatable :: pair_corr(:)
+  real(8), allocatable :: pressures(:)
 
-  real(8) :: pot_energy(number_timesteps)
-  real(8) :: vel_sqr(number_timesteps)
+  real(8), allocatable :: pot_energy(:)
+  real(8), allocatable :: vel_sqr(:)
   
 contains 
 

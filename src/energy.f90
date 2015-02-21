@@ -31,8 +31,8 @@ contains
   subroutine calc_print_heat_capac()
 
     real(8) :: mean_kinen, variance_kinen
-    integer :: time_sec = 200, i
-
+    integer :: i
+   
     mean_kinen = 0._8
     variance_kinen = 0._8
 

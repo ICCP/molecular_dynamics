@@ -5,6 +5,8 @@ module initialization
   implicit none
 
   private open_files
+  private read_parameters
+  private allocate_initialize_var
   private initialize_position
   private initialize_velocity
   private setting_cero_velocity
@@ -20,6 +22,8 @@ contains
 
 
     call open_files()
+    call read_parameters()
+    call allocate_initialize_var()
     call initialize_position()
     call initialize_velocity()
     call setting_cero_velocity()
@@ -37,14 +41,43 @@ contains
 
   subroutine open_files()
     
-    open (unit=11,file='ener_kin_data.txt')
-    open (unit=12,file='ener_pot_data.txt')
-    open (unit=13,file='ener_tot_data.txt')
-    open (unit=14,file='temp_final_data.txt')
-    open (unit=15,file='pair_corre_data.txt')
-    open (unit=16,file='pressure_data.txt')
+    open (unit=11,file='ener_kin_data.txt', status='REPLACE')
+    open (unit=12,file='ener_pot_data.txt', status='REPLACE')
+    open (unit=13,file='ener_tot_data.txt', status='REPLACE')
+    open (unit=14,file='temp_final_data.txt', status='REPLACE')
+    open (unit=15,file='pair_corre_data.txt', status='REPLACE')
+    open (unit=16,file='pressure_data.txt', status='REPLACE')
+    open (unit=17,file='Parameters.txt', status='OLD')
     
   end subroutine open_files
+
+  subroutine read_parameters()
+
+    read(17,*) num_particles
+    read(17,*) density
+    read(17,*) temp_target
+    read(17,*) number_timesteps
+
+    print*, num_particles, density, temp_target, number_timesteps
+
+  end subroutine read_parameters
+
+  subroutine allocate_initialize_var()
+
+    if(.not.allocated(position))allocate(position(3,num_particles))
+    if(.not.allocated(velocity))allocate(velocity(3,num_particles))
+    if(.not.allocated(forces))allocate(forces(3,num_particles))
+
+    boxes = nint((num_particles/4)**(1.0/3))
+    length = boxes*(4.0/density)**(1.0/3)
+
+    if(.not.allocated(pair_corr))allocate(pair_corr(nint(length/2*100)))
+    if(.not.allocated(pressures))allocate(pressures(number_timesteps))
+    if(.not.allocated(pot_energy))allocate(pot_energy(number_timesteps))
+    if(.not.allocated(vel_sqr))allocate(vel_sqr(number_timesteps))
+
+
+  end subroutine allocate_initialize_var
  
   subroutine initialize_position()
     
