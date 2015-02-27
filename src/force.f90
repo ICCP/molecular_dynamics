@@ -7,11 +7,11 @@ module force
   
   private 
 
-  public relation_part
+  public interac_part
 
 contains
 
-  subroutine relation_part(time)
+  subroutine interac_part(time)
 
     integer, intent(in) :: time
  
@@ -42,6 +42,6 @@ contains
        end do
     end do
 
-  end subroutine relation_part
+  end subroutine interac_part
 
 end module force
