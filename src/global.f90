@@ -13,7 +13,7 @@ module global
   !$$ This are the variables defining the time evolution
   !$$ and cut off of the potential 
   real(8), parameter :: time_step = 0.004
-  real(8), parameter :: r_cutoff = 3.2
+  real(8), parameter :: r_cutoff = 2.4_8
   integer, parameter :: time_cut = 500
 
   !$$ This are the basic arrays for the evolution of the problem
@@ -26,6 +26,7 @@ module global
   real(8), parameter :: PI = 4*atan(1.0)
   integer :: boxes
   real(8) :: length
+  real(8) :: delta_r
   integer :: flag
 
   !$$ Physical quantities in an array

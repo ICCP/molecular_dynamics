@@ -1,7 +1,7 @@
-2048 number of particles
-1.0 density
-6 Temperature
-2000 number of time steps
+864 number of particles
+0.88 density
+1 Temperature
+11001 number of time steps
 
 
 For dewnsity 1 --> 0.2 solid, 2 liquid even at higher(6)

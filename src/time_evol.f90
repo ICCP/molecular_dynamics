@@ -67,7 +67,7 @@ contains
           !$$ Applying a thermostat is only renormalizing the velocity
           !$$ in order to have constant total energy and the system
           !$$ relaxes to the users temperature-parameter
-          velocity = velocity*sqrt((3*(num_particles-1)*temp_target/vel_sqr(steps)))
+          velocity = velocity*sqrt(3*(num_particles-1)*temp_target/vel_sqr(steps))
        end if
     !$$ If we just finish the thermostat we take our flag down
     !$$ in order to begin the calculation of the physical quantities

@@ -4,9 +4,6 @@ module initialization
 
   implicit none
 
-  private open_files
-  private read_parameters
-  private allocate_initialize_var
   private initialize_position
   private initialize_velocity
   private setting_cero_velocity
@@ -14,7 +11,9 @@ module initialization
   private init_random_seed
 
   public Initialize_problem
-
+  public open_files
+  public read_parameters
+  public allocate_initialize_var
 
 contains
 
@@ -25,7 +24,7 @@ contains
     !$$ Fisrt we open all needed files where we are going to
     !$$ store all the physical quantities
     call open_files()
-
+    
     !$$ Second we need to read the parameters the user can change
     !$$ and initialize some variables
     call read_parameters()
@@ -50,12 +49,7 @@ contains
 
   subroutine open_files()
     
-    open (unit=11,file='ener_kin_data.txt', status='REPLACE')
-    open (unit=12,file='ener_pot_data.txt', status='REPLACE')
-    open (unit=13,file='ener_tot_data.txt', status='REPLACE')
-    open (unit=14,file='temp_final_data.txt', status='REPLACE')
     open (unit=15,file='pair_corre_data.txt', status='REPLACE')
-    open (unit=16,file='pressure_data.txt', status='REPLACE')
     open (unit=17,file='Parameters.txt', status='OLD')
     
   end subroutine open_files
@@ -66,11 +60,6 @@ contains
     read(17,*) density
     read(17,*) temp_target
     read(17,*) number_timesteps
-
-    print*, "Number of particles:"  num_particles
-    print*, "Density:", density
-    print*, "Temperature:", temp_target
-    print*, "Number of time-steps", number_timesteps
 
   end subroutine read_parameters
 
@@ -84,8 +73,9 @@ contains
 
     boxes = nint((num_particles/4)**(1.0/3))
     length = boxes*(4.0/density)**(1.0/3)
+    delta_r = length/200
 
-    if(.not.allocated(pair_corr))allocate(pair_corr(nint(length/2*100)))
+    if(.not.allocated(pair_corr))allocate(pair_corr(nint(length/(2*delta_r))))
     if(.not.allocated(pressures))allocate(pressures(number_timesteps))
     if(.not.allocated(pot_energy))allocate(pot_energy(number_timesteps))
     if(.not.allocated(vel_sqr))allocate(vel_sqr(number_timesteps))
@@ -240,7 +230,7 @@ contains
     real(8) :: v_tot(3)
     integer :: j
 
-    v_tot = 0
+    v_tot = 0._8
 
     !$$ First we calculate the total velocity of the system
     do j=1, num_particles
