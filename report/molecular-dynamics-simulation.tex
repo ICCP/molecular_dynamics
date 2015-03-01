@@ -1,0 +1,128 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage{opex3}
+\usepackage{cite}
+\usepackage{graphicx}
+\usepackage{float}
+
+\begin{document}
+
+\title{Molecular Dynamics Simulation of Argon Gas}
+
+\author{Stephen Mee$^1$, Mario Gely$^2$ and Hirad Daneshpour$^3$}
+
+\address{$^1$Michigan State University (U.S.A.)\\
+$^{2,3}$Delft University of Technology (etherlands)}
+
+\begin{abstract}
+In the first project of the course "International Master's course on Computational Physics" we simulate the behavior of an Argon gas.
+\end{abstract}
+
+
+\section{Introduction}
+
+%In order to model moving and interacting particles we first have to clearly describe the underlying physical laws, the required conditions and the assumptions we used for the motion of the particles.
+
+%The Argon atoms are initialized in a face-centered cubic lattice in a simulated three-dimensional region consisting of a volume multiple of the lattice. This region is effectively extended to infinity in all directions by the use of periodic boundary conditions.  The motion of the particles is entirely governed by the Lennard-Jones potential function.
+
+%We used a classical point of view to describe governing the motion of the particles, the required initial conditions and conditions on the boundaries of our problem and the assumptions we   
+
+The Argon atoms are initialized in a face-centered cubic lattice in a simulated three-dimensional space. Using periodic boundary conditions this space is effectively extended to infinity in all direction. We initialize the atoms with some given momenta selected randomly from a Maxwell-Boltzmann distribution. Afterwards the atoms are treated in an entirely classical manner governed by the Lennard-Jones potential.
+
+A "thermostat" is built into the code to keep temperature constant, and pressure and pair correlation are calculated for each run. Our goal is to see how the initial and final states of the simulation compare for a range of different conditions, such as high/low temperature and different numbers of atoms.
+
+
+\section{Code}
+
+The molecular dynamics simulation code itself is split into multiple simple modules.
+
+\subsection{main.py}
+
+The main file, it imports all other modules to run the full simulation and produces plots of temperature, pressure, and the pair correlation. The loop in this module is responsible for iterating through every timestep of the simulation and updating the force, position, and momenta of the atoms.
+
+\subsection{forces.f90}
+
+This module is responsible for calculating and updating the forces between atoms that fulfill a given radius condition. It is written in Fortran 90 as opposed to Python to speed up the simulation, due to the module's intensive conditional loops.
+
+\subsection{get.py}
+
+The module that contains the fetching functions for the standard deviation, mean, and variance of the system
+
+\subsection{plot.py}
+
+The module that contains all of the plotting routines for the simulation.
+
+\section{Simulation}
+
+\subsection{Equations}
+
+The interactions between Argon atoms are governed by the Lennard-Jones potential:
+
+\begin{equation}
+V = 4{\epsilon}[(\frac{\sigma}{r})^{12} - (\frac{\sigma}{r})^6]
+\end{equation}
+
+Where $\epsilon$ is the depth of the potential well, $\sigma$ is the distance at which the potential is zero, and r is the distance between the particles.
+
+The force between atoms is calculated as:
+
+\begin{equation}
+F = -{\nabla}{V} = 24{\epsilon}[2(\frac{\sigma^{12}}{r^{13}}) - (\frac{\sigma^6}{r^7})]
+\end{equation}
+
+We use the Stormer-Verlet integration method to compute the velocities of the particles for a given timestep.
+
+
+
+
+\subsection{Plots}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=60mm]{opexfig1.pdf} % dummy filename
+\caption{Construction of Initial Lattice for N = 864} % Change N as necessary
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=60mm]{opexfig1.pdf} % dummy filename
+\caption{Implementation of the Thermostat: Before/After Comparison of Temperature}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=60mm]{opexfig1.pdf} % dummy filename
+\caption{Plot of Pressure for N = 864} % Change N as necessary
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=60mm]{opexfig1.pdf} % dummy filename
+\caption{Plot of the Pair Correlation for N = 864} % Change N as necessary
+\end{figure}
+
+
+\section{Analysis}
+
+\subsection{The Initial Conditions}
+
+The simulation is started in a face-centered cubic lattice because that is the lowest energy state corresponding to the Lennard-Jones potential. By starting in the lowest-energy bound state, we reduce the probability of the simulation creeping up and settling into a higher energy "false" bound state, such as an amorphous solid (like glass).
+
+This can be supported by running the simulation at different temperatures and comparing the final states of each run. For low temperatures, the Argon atoms are likely to settle back into the original cubic lattice. For higher temperatures, the atoms are likely to "overflow" the edges of the bound state in the potential and settle into a state resembling an amorphous solid.
+
+The initial momenta for each particle are selected randomly from a Maxwell-Boltzmann distribution corresponding to the initial temperature of the system in order to properly simulate a gas of Argon atoms.
+
+\subsection{Boundary Conditions}
+
+The use of periodic boundary conditions is for the purpose of extending our "small" sample size to a technically infinite space. It is possible to think of the simulation as infinitely repeating cubic volumes of identical components.
+
+Without these boundary conditions, we would also have to worry about the inevitable possibility of atoms leaving the scope of the simulation and becoming extremely spread out.
+
+
+
+
+\section{Conclusion}
+
+Without the thermostat the simulation exhibits the expected behavior based on the initial temperature. For high temperatures the atoms settle into a disorganized state, and the opposite occurs for low temperatures. These results seem to be independent of the number of particles used in the simulation, but it becomes easier to see past N=512.
+
+
+\end{document}
