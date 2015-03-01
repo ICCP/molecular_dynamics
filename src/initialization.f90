@@ -60,6 +60,7 @@ contains
     read(17,*) density
     read(17,*) temp_target
     read(17,*) number_timesteps
+    read(17,*) r_cutoff
 
   end subroutine read_parameters
 
@@ -73,7 +74,7 @@ contains
 
     boxes = nint((num_particles/4)**(1.0/3))
     length = boxes*(4.0/density)**(1.0/3)
-    delta_r = length/200
+    delta_r = length/400
 
     if(.not.allocated(pair_corr))allocate(pair_corr(nint(length/(2*delta_r))))
     if(.not.allocated(pressures))allocate(pressures(number_timesteps))

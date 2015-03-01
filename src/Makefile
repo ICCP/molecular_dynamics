@@ -33,4 +33,4 @@ myprog: $(OBJS)
 
 .PHONY: clean
 clean:
-	$(RM) myprog $(OBJS) *.mod *.png
+	$(RM) myprog $(OBJS) *.mod *.png pair_corre_data.txt

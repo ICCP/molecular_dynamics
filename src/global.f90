@@ -13,7 +13,7 @@ module global
   !$$ This are the variables defining the time evolution
   !$$ and cut off of the potential 
   real(8), parameter :: time_step = 0.004
-  real(8), parameter :: r_cutoff = 2.4_8
+  real(8) :: r_cutoff
   integer, parameter :: time_cut = 500
 
   !$$ This are the basic arrays for the evolution of the problem
