@@ -1,0 +1,28 @@
+\begin{thebibliography}{1}
+
+\bibitem{Birkhoff}
+George~D. Birkhoff.
+\newblock Proof of the ergodic theorem.
+\newblock {\em Proceedings of the National Academy of Sciences},
+  17(12):656--660, 1931.
+
+\bibitem{crystal}
+Academic~Resource Center.
+\newblock Crystal structures.
+
+\bibitem{deGroot}
+B.~de~Groot.
+\newblock Computational biomolecular dynamics group.
+
+\bibitem{thijssen}
+J.M. Thijssen.
+\newblock {\em Computational Physics}, volume~4 of {\em 10}.
+\newblock Cambridge University Press, Cambridge, 3 edition, 7 2007.
+
+\bibitem{verlet}
+Loup Verlet.
+\newblock Computer "experiments" on classical fluids. i. thermodynamical
+  properties of lennard-jones molecules.
+\newblock {\em Phys. Rev.}, 159:98--103, Jul 1967.
+
+\end{thebibliography}
