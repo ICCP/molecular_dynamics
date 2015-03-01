@@ -1,0 +1,8 @@
+864 number of particles
+0.45 density
+1.71 Temperature
+11001 number of time steps
+1.4 cut-off distance
+
+
+For dewnsity 1 --> 0.2 solid, 2 liquid even at higher(6)

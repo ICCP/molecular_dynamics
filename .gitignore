@@ -1,0 +1,9 @@
+*.o
+*.mod
+*.f90~
+*.out
+*.f90
+myprog
+*.txt
+*.png
+*.gnu~
