@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+import matplotlib as matl
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import pylab as P
+
+SaveFigure = True #True will save as png instead of displaying
+numFigs = 1 #More than one will input/output multiple datafiles (use only with SaveFigure==True)
+
+for n in range(0,numFigs):
+
+  #with open("momentum"+str(n+1)+".dat") as f:
+   # data = map(float, f)
+  #print (np.mean(data))
+
+ # n, bins, patches = P.hist(data, 50, normed=1, histtype='stepfilled')
+  #P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
+
+  #y = P.normpdf( bins, 0, 1)
+ # l = P.plot(bins, y, 'k--', linewidth=1.5)
+
+ # if SaveFigure:
+ #   P.savefig('MomentumData'+str(n+1)+'.png', bbox_inches='tight')
+  #else:
+  #  P.show()
+
+  def plotaxis(large): 
+     x = np.linspace(-large, large, 100)
+     y = x*0.0
+     z = x*0.0
+     #   ax.plot(x, y, z)
+     y = np.linspace(-large, large, 100)
+     x = x*0.0
+     z = x*0.0
+     #   ax.plot(x, y, z)
+     z = np.linspace(-large, large, 100)
+     x = x*0.0
+     y = x*0.0
+     #   ax.plot(x, y, z)
+
+  f = open("data/position    "+str(n+1)+".dat")
+  i = 1
+  data = []
+  for line in f:
+    data_aux = []
+    for x in line.split():
+        data_aux.append(float(x))
+    data.append(data_aux)
+  f.close()
+  fig = plt.figure()
+  ax = fig.gca(projection='3d')
+  plotaxis(30)
+  print (len(data))
+  for point in data:
+    ax.scatter(point[0], point[1], point[2])
+
+  if SaveFigure:
+    plt.savefig('PositionData'+str(n+1)+'.png', bbox_inches='tight')
+  else:
+    plt.show()
