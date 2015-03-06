@@ -1,12 +1,15 @@
 program md
 
+  use global
+
   implicit none
   
-  integer :: nxcells,nycells,nzcells,ncells,ppc,nprtl,prtlnum
-  real(8),dimension(:,:),allocatable :: pos,vel
-  real(8),dimension(4,3) :: fcc
-  integer :: ii,jj,kk,ll
-  real(8) :: xcellscl,ycellscl,zcellscl
+
+  !integer :: nxcells,nycells,nzcells,ncells,ppc,nprtl,prtlnum
+  !real(8),dimension(:,:),allocatable :: pos,vel
+  !real(8),dimension(4,3) :: fcc
+  !integer :: ii,jj,kk,ll
+  !real(8) :: xcellscl,ycellscl,zcellscl
 
   !Program Settings
   nxcells = 10   !Number of cells in the X directions

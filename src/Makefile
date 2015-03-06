@@ -9,7 +9,7 @@ COMPILE = $(FC) $(FFLAGS)
 LINK = $(FC) $(LDFLAGS)
 
 TARGET = md.exe       # Name of final executable to produce
-OBJS = md.o # List of object dependencies
+OBJS = global.o md.o # List of object dependencies
 
 $(TARGET): $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS)
