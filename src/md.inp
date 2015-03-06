@@ -1,0 +1,11 @@
+10            !nxcells
+10            !nycells
+10            !nzcells
+1.0           !xcellscl
+1.0           !ycellscl
+1.0           !zcellscl
+4             !ppc
+0.0 0.0 0.0   !cordinates of first fcc cell particle
+0.0 0.5 0.5   !cordinates of second fcc cell particle
+0.5 0.5 0.0   !cordinates of third fcc cell paritcle
+0.5 0.0 0.5   !cordinates of fourth fcc cell particle
