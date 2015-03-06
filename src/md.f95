@@ -48,3 +48,14 @@ program md
 
 
 end program
+
+subroutine bld_lattice
+  !Functionality: Creates the inital position of all the particles in the box.
+  !
+  !Input: pos - position array that hold the cartesian cordinates of the particles.
+  !             Array on input should be zeros.
+  !Output: pos -
+  
+  implicit none
+
+end subroutine
