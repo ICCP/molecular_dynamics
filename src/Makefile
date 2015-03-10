@@ -1,4 +1,5 @@
 FC      = gfortran
+OBJ_DIR = ../Obj
 FFLAGS  = -Wall -Wextra -O3 -fimplicit-none -march=native 
 #FFLAGS += -pedantic -fbounds-check -fmax-errors=1 -g
 !FFLAGS += $(shell pkg-config --cflags plplotd-f95)
@@ -9,7 +10,7 @@ COMPILE = $(FC) $(FFLAGS)
 LINK = $(FC) $(LDFLAGS)
 
 TARGET = md.exe       # Name of final executable to produce
-OBJS = global.o md.o # List of object dependencies
+OBJS = global.o md.o  # List of object dependencies
 
 $(TARGET): $(OBJS)
 	$(LINK) -o $@ $^ $(LIBS)
