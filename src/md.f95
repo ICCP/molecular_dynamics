@@ -4,6 +4,7 @@ program md
 
   implicit none
   
+
   !Program Settings
   nxcells = 10   !Number of cells in the X directions
   nycells = 10   !Number of cells in the Y directions
@@ -28,15 +29,10 @@ program md
   allocate(accel(nprtl,3,1)) !allocate acceration
 
   call bld_lattice  !Create inital position of gas particles
-  call writepos     !write positions to files
-  call writevel     !write velocities to files
+  call accel_calc(1)
 
 
 
-  call force_lj(fcc(1,:),fcc(2,:),prtl_force_lj)
-
-  print*,'prtl_force_lj',prtl_force_lj
-  print*,'Norm force', norm2(prtl_force_lj)
 end program
 
 subroutine bld_lattice !{{{
@@ -141,7 +137,7 @@ subroutine force_lj(pos1,pos2,force) !{{{
 
 end subroutine !}}}
 
-subroutine verlet_integration(pos,vel,accel,NT)
+!subroutine verlet_integration(pos,vel,accel,NT) !{{{
   !------------------------------------------------------------------------
   !Function - Calculate the postion of all the particles after NT timesteps
   !
@@ -152,18 +148,39 @@ subroutine verlet_integration(pos,vel,accel,NT)
   !Output: pos
   !------------------------------------------------------------------------
   
-  real(8), dimension(:,:,:) :: pos, vel, accel
-  integer, intent(in) :: NT 
+ ! use global 
 
-  pos(:,:,2) = pos(:,:,1) + vel(:,:,1) * dt + 0.5*accel(:,:,1) * dt**2
+  !real(8), dimension(:,:,:) :: pos, vel, accel
+  !integer, intent(in) :: NT 
 
-  do ii = 2 , NT-1
-    pos(:,:,ii+1) = 2.d0*pos(:,:,ii) - pos(:,:,ii-1) + accel(:,:,ii)*dt**2
+  !pos(:,:,2) = pos(:,:,1) + vel(:,:,1) * dt + 0.5*accel(:,:,1) * dt**2
+
+  !do ii = 2 , NT-1
+  !  pos(:,:,ii+1) = 2.d0*pos(:,:,ii) - pos(:,:,ii-1) + accel(:,:,ii)*dt**2
+  !end do 
+
+!end subroutine !}}}
+
+subroutine accel_calc(it) !{{{
+
+  use global
+  
+  !internal variable
+  real(8), dimension(3) :: prtl_force_lj !particle force from lenard jones
+  integer :: it                          !current iteration
+ 
+ do ii = 1, nprtl
+      do jj = 1, nprtl
+      
+      call force_lj(pos(ii,:,it),pos(jj,:,it),prtl_force_lj)
+
+      accel(ii,:,it) = accel(ii,:,it) + prtl_force_lj
+      
+      end do 
   end do 
 
-end subroutine
 
-
+end subroutine !}}}
 
 
 
