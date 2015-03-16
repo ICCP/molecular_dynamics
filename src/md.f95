@@ -18,8 +18,8 @@ program md
   !FCC Cordinates
   fcc(1,:) = (/0.0,0.0,0.0/)
   fcc(2,:) = (/0.0,0.5,0.5/)
-  fcc(3,:) = (/0.5,0.5,0.0 /)
-  fcc(4,:) = (/0.5,0.0,0.5 /)
+  fcc(3,:) = (/0.5,0.5,0.0/)
+  fcc(4,:) = (/0.5,0.0,0.5/)
  
   NT = 1
 
@@ -141,7 +141,27 @@ subroutine force_lj(pos1,pos2,force) !{{{
 
 end subroutine !}}}
 
+subroutine verlet_integration(pos,vel,accel,NT)
+  !------------------------------------------------------------------------
+  !Function - Calculate the postion of all the particles after NT timesteps
+  !
+  !Input:  pos - position of every particle over NT timesteps
+  !        vel - velocity of every particle over NT timesteps
+  !        accel - acceration of every particle over NT timesteps
+  !        NT - number of timesteps 
+  !Output: pos
+  !------------------------------------------------------------------------
+  
+  real(8), dimension(:,:,:) :: pos, vel, accel
+  integer, intent(in) :: NT 
 
+  pos(:,:,2) = pos(:,:,1) + vel(:,:,1) * dt + 0.5*accel(:,:,1) * dt**2
+
+  do ii = 2 , NT-1
+    pos(:,:,ii+1) = 2.d0*pos(:,:,ii) - pos(:,:,ii-1) + accel(:,:,ii)*dt**2
+  end do 
+
+end subroutine
 
 
 
