@@ -15,23 +15,25 @@ program md
   ppc = 4            !particle per cell
   !nprtl = ncells*ppc !number of particles
   nprtl = 2
-  dt = 1.d0
+  dt = 0.004*1.d0
   !FCC Cordinates
   fcc(1,:) = (/0.0,0.0,0.0/)
   fcc(2,:) = (/0.0,0.5,0.5/)
   fcc(3,:) = (/0.5,0.5,0.0/)
   fcc(4,:) = (/0.5,0.0,0.5/)
  
-  NT = 3
+  NT = 10000
 
   allocate(pos(nprtl,3,NT))   !allocate position
   allocate(vel(nprtl,3,NT))   !allocate velocity
   allocate(accel(nprtl,3,NT)) !allocate acceration
 
   call bld_lattice_two_prtl
+  
   print*,'verlet_integration'
   call verlet_integration
   call writepos
+  
   !call bld_lattice  !Create inital position of gas particles
   !call force_lj(fcc(2,:),fcc(1,:),force_test)
   !print*,'force_test:',force_test
@@ -51,6 +53,8 @@ subroutine bld_lattice !{{{
   use global
 
   implicit none
+
+  integer :: ii, jj, kk, ll
 
   do ii = 1,nzcells
     do jj = 1,nycells
@@ -83,10 +87,10 @@ subroutine bld_lattice_two_prtl !{{{
   implicit none
 
   pos(1,:,1) = [0.d0,0.d0,0.d0]    
-  pos(2,:,1) = [0.d0,0.d0,1.90637*1.d0]
+  pos(2,:,1) = [0.d0,0.d0,1.2*1.d0]
 
-  vel(1,:,1) = [0.d0,0.d0,-1.d0]
-  vel(2,:,1) = [0.d0,0.d0,1.d0]
+  vel(1,:,1) = [0.d0,0.d0,0.d0]
+  vel(2,:,1) = [0.d0,0.d0,0.d0]
 end subroutine !}}}
 
 subroutine writepos !{{{
@@ -95,6 +99,8 @@ subroutine writepos !{{{
   use global
   
   implicit none
+
+  integer :: ii,jj
 
   open (unit = 1, file = 'pos.out', status = 'unknown')
   do ii = 1,nprtl
@@ -110,6 +116,8 @@ subroutine writevel!{{{
   use global
    
   implicit none
+
+  integer :: ii,jj
 
   open (unit = 2, file = 'vel.out', status = 'unknown')
   do ii = 1,nprtl
@@ -171,32 +179,43 @@ subroutine verlet_integration !{{{
   !------------------------------------------------------------------------
   
   use global 
-  print*,'First iteration'
+
+  implicit none
+
+  integer :: ii
+
+
   call accel_calc(1)
-  print*,'accel time = 1 :',accel(:,:,1)
   pos(:,:,2) = pos(:,:,1) + vel(:,:,1) * dt + 0.5*accel(:,:,1) * dt**2
   do ii = 2 , NT
-      print*,'iteration',ii
       call accel_calc(ii)
       pos(:,:,ii+1) = 2.d0*pos(:,:,ii) - pos(:,:,ii-1) + accel(:,:,ii)*dt**2
+      print*,"pos1",pos(1,3,ii),'pos2',pos(2,3,ii)
   end do 
 
 end subroutine !}}}
 
 subroutine accel_calc(it) !{{{
+  !Function: Calculates the acceleration of every particle from the iteration of every other particle
+  !
+  !input: it - current time step indexer
+  !
+  !Global Variables - 
 
   use global
-  
+ 
+  implicit none
+
   !internal variable
   real(8), dimension(3) :: prtl_force_lj !particle force from lenard jones
   integer :: it                          !current iteration
- 
- do ii = 1, nprtl
+  integer :: ii, jj
+
+
+  do ii = 1, nprtl
       do jj = 1, nprtl 
           if (ii .ne. jj) then  
-              print*,'ii,jj', ii,jj
               call force_lj(pos(ii,:,it),pos(jj,:,it),prtl_force_lj) 
-              print*,'prtl_force', prtl_force_lj
               accel(ii,:,it) = accel(ii,:,it) + prtl_force_lj
           end if 
       end do 
@@ -204,12 +223,6 @@ subroutine accel_calc(it) !{{{
 
 
 end subroutine !}}}
-
-
-
-
-
-
 
 
 

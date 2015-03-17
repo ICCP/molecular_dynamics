@@ -20,8 +20,5 @@ integer :: NT !Number of timestep
 !Array the hold the position of particles in the unit fcc cell
 real(8), dimension(4,3) :: fcc
 
-integer :: ii,jj,kk,ll                !Indexer Variables
-
-
 
 end module
