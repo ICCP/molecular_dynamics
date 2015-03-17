@@ -15,7 +15,7 @@ real(8), dimension(3) :: rand_vel = 0           !varible for assigning random ve
 real(8), dimension(3) :: prtl_accel = 0         !acceration on an individual particle
 
 real(8) :: dt !timestep
-real(8) :: NT !Number of timestep
+integer :: NT !Number of timestep
 
 !Array the hold the position of particles in the unit fcc cell
 real(8), dimension(4,3) :: fcc
