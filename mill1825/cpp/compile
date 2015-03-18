@@ -1,0 +1,1 @@
+icc -o md.x md.cpp -lgsl -lcblas

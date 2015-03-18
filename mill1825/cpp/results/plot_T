@@ -1,0 +1,5 @@
+set terminal svg size 450,362 fname 'Verdana' fsize 10
+set output './Temperature.svg'
+set yrange [0:7]
+
+plot "./T_nu1.dat" u 1:2 w l, "./T_nu10.dat" u 1:2 w l, "./T_nu100.dat" u 1:2 w l
