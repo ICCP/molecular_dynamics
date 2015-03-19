@@ -10,111 +10,127 @@
 
 \begin{document}
 
-\title{Three-Dimensional Molecular Dynamics Simulation:\\with Metropolis Algorithm}% Force line breaks with \\
+\title{Three-Dimensional Molecular Dynamics Simulation:\\with Verlet algorithm}% Force line breaks with \\
 \author{Tridip Das}
 \date{March 18, 2015}% It is always \today, today, but you can specify other dates manually 
 \maketitle
 
 \begin{abstract}
-This study on Ising model investigates the variation of magnetization with temperature in a ferromagnetic material.
-The model try to predict Curie Temperature for a ferromagnetic material with scaled properties. The Monte Carlo simulation with Metropolis algorithm has been
-used to predict new spin states by randomly changing spin of a lattice and henceforth trying to minimize the overall energy.
-This model also predicts Susceptibility and Specific heat variation with scaled temperature.
+The study of classical Molecular Dynamics investigates the interaction of atoms in a face centered cubic (FCC) lattice at different temperature.
+For this study Newton's law of particle interaction has been applied with Verlet algorithm for velocity calculation. The potential interactions are described
+with Lennard-Jones pair potential. For initialization of velocity Box-Muller method is used. The particles are interacted in periodic boundary conditon.
+32 atoms are taken for all the studies described, which is sufficient to adequately describe the system. The temperature effect on lattice is studied with observation of melting phenomena. For ease of calculation scaled parameters are used in this study.
 \end{abstract}
 
 \section{Introduction} %Title for the section
 \label{sec:level1} %Label for the section, to be used for referencing in other parts of the document
-
-The Ising model is a simple representation of the ferromagnetic phase transition at Curie temperature. In this model at low temperature all the lattice site has same spin (say all are up).
-The lattice sites preferably occupied by opposite (down) spins with increasing temperature and when it attains Curie temperature the spin distribution goes random in up or down.
-The Hamiltonian for Ising model includes only neighbouring site interaction, the long range interaction are neglected. The spin directions may be "Up" (+1) or "Down" (-1).
+The study of Molecular Dynamics (MD) investigates the interaction and motion of atoms/molecules in a many body simulation. The concept of MD applicable in wide area of sciences. Though there are two types of MD simulations ab initio and classic, this study investigates the classical version. The classical MD concept stands on famous Newton's equation $F = ma$. We just solve this equation with applied mathematical concepts.
 
 \begin{equation}
 \label{eq:one} %Label for the equation, to be used for referencing in other parts of the document
-  H = - J \sum_{<i,j>} S_i S_j
+  \overrightarrow{F} = m \overrightarrow{a} = m \frac{{d}^2 \overrightarrow{r}} {d {t}^2}
 \end{equation}
-J is a coupling constant. For ferromagnetic model J $>$ 0. Here it is assumed to be 1.
 
-\section{Monte Carlo Simulation}
-In the Ising model, each particle can occupy a site with up or down spin state. In Monte Carlo simulation one site is randomly choose, and the spin state of the particle is reversed.
-The acceptance of the new state is determined with application of Metropolis algorithm.
 
-\subsection{Metropolis Algorithm}
-The method is a modified Monte Carlo scheme. In this method instead of choosing configuration randomly, configurations are choose with a probability exp(-E/kT) and weight them evenly.
-The change in energy is calculated as $\delta E$, if it is $<$ 0, change is accepted. Otherwise, the $\delta E$ with a weighting factor, $e^{-\beta \delta E}$ is compared with a random number $\in [0,1] $ and if the factor is greater, change is accepted.
+\section{Simulation Methodology}
+Though the classical MD sounds pretty simple as it requires to solve $ F = ma $ but the algorithmic methods developed to attain this simple problem are interesting.
 \\
-\subsection{Calculating Observables}
-Some quantitative information can be derived from spin array calculations. The magnetization is calculated from spin $\pm 1$ according to below formula:
+\subsection{Initial velocity with Box-Muller}
+In the Box-Muller method random rumbers are used between [0,1]. Two random numbers $x_1$ and $x_2$ are generated. They are used in below equations to calculate velocity.
 \begin{equation} 
-  m = \frac{1}{N}\sum_{i} \langle S_i \rangle
+  v_1 = \sqrt{-2 ln x_1} cos(2\pi x_2)
+\end{equation}
+\begin{equation} 
+  v_2 = \sqrt{-2 ln x_2} sin(2\pi x_1)
 \end{equation}
 \\
-The energy, $E$ is calculated as:
+Velocities can be choosen using Maxwell-Boltzmann distribution
 \begin{equation} 
-  E = - J \sum_{<i,j>} S_i S_j
+  P(\overrightarrow{v}) = {(\frac{m}{2\pi k_B T})}^{\frac{3}{2}} exp[-\frac{m({v_x}^2+{v_y}^2+{v_z}^2)}{2 k_B T}]
 \end{equation}
-i,j are neighbouring lattice position of up, down, left and right.\\
 \\
-It is also possible to calculate heat capacity, $C_v$ at constant field according to below formula:
+\subsection{Lennard Jones potential}
+The interatomic potential between two particle is calculated using Lennard Jones pair potential. The minimum distance between atoms are set by $r_{min} = 2^{\frac{1}{6}}\sigma$ and depth of the minimum as $-\epsilon$. All parameters are scaled as $ m = 1, \sigma = 1, \epsilon = 1 $. Again one unit of time scale for this problem is $\tau = (\frac{m {\sigma}^2}{\epsilon}) = 2.17ps$. So, the simulation is executed for $4.34ps$ to observe steady state effect with a time step of $2.17fs$.
 \begin{equation} 
-  C_v = \frac{\beta}{T}[\langle E^2 \rangle - \langle E \rangle ^2]
+  V(r) = 4\epsilon[{(\frac{\sigma}{r})}^{12} - {(\frac{\sigma}{r})}^{6}]
 \end{equation}
-Where, $\beta = \frac{1}{k_B T}$ \\
-
-We can also calculate isothermal susceptibility, $\chi$ with below equation:
+\\
+The Force is calculated as:
 \begin{equation} 
-  \chi = \beta[\langle M^2 \rangle - \langle M \rangle ^2]
+  \overrightarrow{F}(r) = -\frac{\partial V}{\partial r} \hat{r}
 \end{equation}
-
+\\
+\subsection{The Verlet algorithm}
+The Verlet algorithm solves the differential form of velocity and acceleration with numerical approach. Finite difference methods can be used for the purpose. As in central difference method the correction term, $ O { (\delta t)}^{2}$ is of higher order than forward and backward difference method, $ O  (\delta t)$, the cetral difference formula is employed to develop Verlet equations to calculate velocity and displacement:
+\begin{equation} 
+  \overrightarrow{v_i} (t+\delta t) = \overrightarrow{v_i}(t) +  \frac{1}{2}\delta {t}(\overrightarrow{a_i}(t + \delta t) + \overrightarrow{a_i}(t))
+\end{equation}
+\begin{equation} 
+  \overrightarrow{x_i} (t+\delta t) = \overrightarrow{x_i}(t) + \delta t \overrightarrow{v_i}(t) + \frac{1}{2}\delta {t}^{2}\overrightarrow{F_i}(t)/m_i
+\end{equation}
+\\
+The temperature correction of velocity is performed according to below formula to check the run away of the particles.
+\begin{equation} 
+  \overrightarrow{v}_{new}  = \overrightarrow{v_i} \sqrt{\frac{T_{goal}}{T_{simulated}}}
+\end{equation}
 \section{Results}
-The Metropolis based Monte Carlo simulation of Ising model is implemented in Fortran. The code is available in github at \url{https://github.com/tridip66/ising/blob/master/src/ising.f}, also, other codes can be found in the parent directory, which are used 
-to generate the plots.
-\begin{figure}[p]
-  \centering
-  \includegraphics[scale=0.9]{figures/fig_1}% Imports a figure - does not automatically scale
-  \caption{\label{fig:epsart} A magnetization vs Temperature plot for different number of iterations performed}
-\end{figure}
-\subsection{Parameter selection}
-The number of iterations to be performed for the magnetization value to reach equilibrium is plotted in figure 1, a magnetization vs temperature curve. In the plot each line corresponds to different number of iterations. It is observed $10^4$ number of iterations is good enough for equilibrium but based on execution time $10^5$ iterations are performed (look into appendix A for details).
+The classical Molecular Dynamics simulation is implemented in Python and Fortran. The FCC lattice generation part is done in Python then Fortran is used for all the calculations. Again Python is used to generate all the plots. Fortran is used for velocity initialization to final energy and lattice position calculations. Code is available in github at \url{https://github.com/tridip66/molecular_dynamics/tree/master/src}. The simulation tries to keep the temperature constant, so steady kinetic energy is observed. The total energy of the system fluctuates around a steady state. It can be observed in the Figure 1 which is ran for $ 10ps$ at $T = 1$. For visualization of crystal lattice VESTA has been used.
 \\
 \begin{figure}[p]
- % \centering
-  \includegraphics[scale=0.8]{figures/fig_4}% Imports a figure - does not automatically scale
-  \caption{\label{fig:epsart} Temperature vs diferent parameters plot for a 4x4 lattice}
+  \centering
+  \includegraphics[scale=0.4]{figures/Energyplot}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} Energy vs time plot at T = 1.0 for 10 ps of simulation performed}
 \end{figure}
-
-The lattice site 10x10 is compared with 4x4 and it is observed that 10x10 provides a sharper change in magnetization (figure 3) at Curie temperature. Also, the specific heat and susceptibility change at Curie temperature is not sharp in 4x4 lattice as shown in figure 2.
-
-
-\subsection{Visualization of spin}
-A Matlab code, \url{https://github.com/tridip66/ising/blob/master/spinviz.m} has been developed for visualization of spin states. The figure 4 shows a 10x10 lattice with randomly oriented spins at T=4.
 \\
-
+It can be observed that the fluctuations are subsided in Figure 2, when the target temperature is low $T = 0.1$ .
+\\
 \begin{figure}[p]
   \centering
-  \includegraphics[scale=0.8]{figures/fig_5}% Imports a figure - does not automatically scale
-  \caption{\label{fig:epsart} Temperature vs diferent parameters plot for a 10x10 lattice}
+  \includegraphics[scale=0.4]{figures/Energy0dot1}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} Energy vs time plot at T = 0.1 for 4.34 ps of simulation}
 \end{figure}
+\\
+The temperature fluctuation with simulation time is shown in Figure 3. The goal for temperature was set at T = 1.0. The temperature varies nicely around the goal.
+\\
 \begin{figure}[p]
   \centering
-  \includegraphics[scale=0.5]{figures/fig_6}% Imports a figure - does not automatically scale
-  \caption{\label{fig:epsart} Visualization of spins in a 10x10 lattice at T=4}
+  \includegraphics[scale=0.5]{figures/TempPlot}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} Temperature fuctuation around T = 1.0 with time calculated at T = 1.0}
 \end{figure}
-
+\\
+During the simulation of the FCC lattice it was possible that due to resultant velocity of all the particles the simulation box may get some momentum. Hence, a correction has been applied for the velocity to keep the momentum of the center of mass negligible. The momentum of the center mass with time is shown in Figure 4 at high temperature T = 1.0, when the velocity fluctuation is higher.
+\begin{figure}[p]
+  \centering
+  \includegraphics[scale=0.5]{figures/MomPlot}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} Momentum of the center of mass with time at T = 1.0}
+\end{figure}
+\\
+As the velocity fluctuation for every particle can be interesting phenomena to observe and it can give an idea of melting when translated to displacement, so the velocity fluctuations of five particles are plotted in Figure 5. Velocity variation with time is not plotted for all the particles as it will make the plot clumsy.
+\begin{figure}[p]
+  \centering
+  \includegraphics[scale=0.5]{figures/VelPlot}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} Velocity fluctuation with time at T=1.0}
+\end{figure}
+\\
+\subsection{Visualization of Melting}
+The final position of the atoms in the crystal lattice are recorded after a 4.34 ps of simulation run. As the time is sufficient to reach the steady temperature for the system. In Figure 6 final atom postions are displayed for four different temperatures $ (T = 0.0, 0.1, 0.5, 1.0)$. At temperature $ T = 0.5$ it is clear that lattice vibation increases and at $T = 1.0 $ the periodicity of the system is lost. This can be assumed as melting of the structure. VESTA is used for the visualization of the structures. For better capturing of melting root mean square displacement can be plotted at different temperature. Also, from coordination number decreament with increasing temperature can find the melting point. 
+\\
+\begin{figure}[p]
+  \centering
+  \includegraphics[trim = 10mm 70mm 10mm 10mm, scale=0.5]{figures/Lattice}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} Crystal lattice at different temperatures}
+\end{figure}
+\\
 \section*{References}
-Charles Kittel and Herbert Kroemer. Thermal Physics. W. H. Freeman, January 1980. 
+R. Schneider, A. R. Sharma, and A. Rai, "Introduction to Molecular Dynamics," in Computational Many-Particle Physics, vol. 739, H. Fehske, R. Schneider, and A. Weibe, Eds. Berlin, Heidelberg: Springer Berlin Heidelberg, 2008, pp. 3–40 
+\\
+\\
+Box, G. E. P. and Muller, M. E. "A Note on the Generation of Random Normal Deviates." Ann. Math. Stat. 29, 610-611, 1958.
+\\
 \\
 \url{http://en.wikibooks.org/wiki/LaTeX/Mathematics}
 \\
+\\
 \url{http://en.wikibooks.org/wiki/LaTeX/Importing_Graphics}
 \\
-\appendix
-\section*{Appendix}
-Figure 5 shows the iteration time increases linearly with number of iteration as expected. As $10^5$ steps takes around 2 minutes, which is reasonable time with accuracy, so it is selected for further calculations.
-\begin{figure}[p]
-  \centering
-  \includegraphics[scale=0.6]{figures/fig_7}% Imports a figure - does not automatically scale
-  \caption{\label{fig:epsart} Iteration time vs number of iteration in 10x10 lattice}
-\end{figure}
-
 \end{document}

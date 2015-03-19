@@ -58,21 +58,58 @@ except:
    exit()
 #
 energy_arr = np.array(energy_data)
+# Assign values from array
+time  = energy_arr[:,0]
+PE = energy_arr[:,1]
+KE = energy_arr[:,2]
+tot_E = energy_arr[:,3]
+Temp = energy_arr[:,4]
+momentum = energy_arr[:,5]
 #
-x  = energy_arr[:,0]
-y1 = energy_arr[:,1]
-y2 = energy_arr[:,2]
-y3 = energy_arr[:,3]
-y4 = energy_arr[:,4]
-y5 = energy_arr[:,5]
-plt.plot(x,y1,'r',label='PE')
-plt.plot(x,y2,'b',label='KE')
-plt.plot(x,y3,'g',label='E')
-plt.plot(x,y4,'c',label='T')
-# plt.plot(x,y1,'r',x,y2,'b',x,y3,'g',x,y4,'c')
+#plt.figure(1,figsize=(6,6))
+plt.plot(time,PE,'r',label='Potential Energy')
+plt.plot(time,KE,'b',label='Kinetic Energy')
+plt.plot(time,tot_E,'g',label='Total Energy')
 plt.legend(loc=0)
 plt.xlabel('time')
 plt.ylabel('Energy')
-plt.title('Energy vs time plot');
-plt.savefig("Energyplot.pdf")
+plt.title('Energy vs time plot')
 plt.show()
+#plt.savefig("Energyplot.pdf")
+#
+#plt.figure(1,figsize=(6,6))
+plt.plot(time,Temp)
+plt.xlabel('time')
+plt.ylabel('Scaled Temperature')
+plt.title('Temperature vs time plot')
+plt.show()
+#plt.savefig("TempPlot.pdf")
+#
+#plt.figure(1,figsize=(10,6))
+plt.plot(time,momentum)
+plt.xlabel('time')
+plt.ylabel('Momentum of Center of Mass')
+plt.title('Momentum vs time plot')
+plt.show()
+#plt.savefig("MomPlot.pdf")
+#
+with open('Velocity.dat', 'r') as vel_file:
+    velocity_data =[]
+    for line in vel_file:
+        line = line.strip()
+        columns = line.split()
+        velocity_data.append(columns)
+vel_data = np.array(velocity_data)
+x  = vel_data[:,0]
+v1 = vel_data[:,1]
+v2 = vel_data[:,2]
+v3 = vel_data[:,3]
+v4 = vel_data[:,4]
+v5 = vel_data[:,5]
+#plt.figure(1,figsize=(6,6))
+plt.plot(x,v1,'r',x,v2,'b',x,v3,'k',x,v4,'g',x,v5,'m')
+plt.xlabel('time')
+plt.ylabel('Velocity of individual particle')
+plt.title('Velocity vs time plot')
+plt.show()
+#plt.savefig("VelPlot.pdf")

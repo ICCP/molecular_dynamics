@@ -7,19 +7,21 @@
         EPS = 1.0
         M  = 1.0
         L = 2
-        TOT_STEPS = 5000
-        DEL_TM = 0.004
+        TOT_STEPS = 2000
+        DEL_TM = 0.001
         LAT = 1.5874
       !
         CALL MDMAIN(TGOAL,SIGMA,EPS,M,L,LAT,TOT_STEPS,DEL_TM)
       END PROGRAM MDFORTRAN
+      !
       ! The below subroutine was supposed to be called by md.   
+      !
       SUBROUTINE MDMAIN(TGOAL,SIGMA,EPS,MASS,L,LAT,TOT_STEPS,DEL_TM)
       ! This is the main logic for MD simulation run
         IMPLICIT NONE
       ! Variable Declaration
         INTEGER :: N, I, J, K, TOT_STEPS, STEPS, L
-        REAL :: DEL_TM, LAT
+        REAL :: DEL_TM, LAT, PI
         REAL, ALLOCATABLE :: ATOM_POS(:,:), VEL(:,:), ACCN(:,:)
       ! Individual atomic positions, Velocity, Acceleration
         REAL, ALLOCATABLE :: INDATA(:), E_POT(:), E_KIN(:)
@@ -28,7 +30,7 @@
       ! Potential, Kinetic, & Total Energy
         REAL :: RIJ(3), RSQUARE, EPS, SIGMA
         REAL :: POT_EN, F, MASS, RUIJ(3),VEL_TOT(3),VEL_VEC(3),TGOAL
-        REAL :: RAND1, RAND2, PI, kB = 1.0, VUIJ(3)
+        REAL :: RAND1, RAND2, kB = 1.0, VUIJ(3), VEL_WRITE(5)
       ! 
         N = 4*L**3
       !  N = 5
@@ -49,15 +51,21 @@
         OPEN(UNIT=11,FILE='initial_lattice.dat',STATUS='OLD',           &
      &       ACTION='READ')
         READ(11,*) INDATA
+      !
       ! Open output file to write Energy related data
+          OPEN(UNIT=31,FILE='final_lat.dat',STATUS='REPLACE',           &
+     &       ACTION='WRITE')
+      !
           OPEN(UNIT=32,FILE='Energy.dat',STATUS='REPLACE',              &
      &       ACTION='WRITE')
         WRITE(32,*) " Time ", " Potential_Energy ", " Kinetic_Energy ", &
      &              " Total_Energy ", " Temperature ", " Moment of Cen"
       !
-      ! Open output file to write final lattice positions 
-          OPEN(UNIT=31,FILE='final_lat.dat',STATUS='REPLACE',           &
+          OPEN(UNIT=33,FILE='Velocity.dat',STATUS='REPLACE',            &
      &       ACTION='WRITE')
+      !
+      ! Open output file to write final lattice positions 
+ 
       !  
         DO I = 1, N 
            DO J = 1, 3
@@ -139,7 +147,7 @@
            TEMPERATURE(STEPS) = 2*E_KIN_AVG(STEPS)/3
 
       !    Perform velocity scaling
-           IF (MOD(STEPS,100) == 0) THEN
+           IF (MOD(STEPS,10) == 0) THEN
               DO I = 1, N
                  VEL(I,:) = VEL(I,:)*SQRT(TGOAL/TEMPERATURE(STEPS))
               ENDDO
@@ -175,11 +183,26 @@
            ENDDO
       !
            E_POT_AVG(STEPS) = SUM(E_POT)/N ! Avg Pot En per particles
-      !    
+      !
+      ! Calculate Kinetic Energy and Temperature
+           DO I = 1, N
+              VEL_VEC = VEL(I,:)
+              E_KIN(I) = 0.5*MASS*DOT_PRODUCT(VEL_VEC, VEL_VEC) ! Kinetic energy of each particle
+           ENDDO
+      !
+           E_KIN_AVG(STEPS) = SUM(E_KIN)/N ! Average K.E. per particle
+   
+      ! 
            E_TOT(STEPS) = E_POT_AVG(STEPS) + E_KIN_AVG(STEPS)
            WRITE(32,*) (STEPS * DEL_TM), E_POT_AVG(STEPS),              &
      &               E_KIN_AVG(STEPS), E_TOT(STEPS),TEMPERATURE(STEPS), &
      &               MOMENTUM(STEPS)
+      ! Write velocity of first five particles with time
+           DO I = 1, 5
+              VEL_WRITE(I) = SQRT(DOT_PRODUCT(VEL(I,:),VEL(I,:)))
+           ENDDO
+           WRITE(33,*) (STEPS * DEL_TM), VEL_WRITE
+      !
       ENDDO TIME
       ! 
         DO I = 1, N
@@ -189,6 +212,6 @@
         CLOSE(11)
         CLOSE(31)
         CLOSE(32)
+        CLOSE(33)
       ! 
       END SUBROUTINE MDMAIN
-C   End of subroutine
