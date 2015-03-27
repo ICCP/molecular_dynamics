@@ -170,7 +170,9 @@ subroutine force_lj(pos1,pos2,force) !{{{
   real(8) :: force_mag       !Magnitude of the Force
 
   r = pos1 - pos2             !Finding the Distance Between the Points
-
+  r(1) = r(1) - NINT(r(1)/xbound)*xbound
+  r(2) = r(2) - NINT(r(2)/ybound)*ybound
+  r(3) = r(3) - NINT(r(3)/zbound)*zbound
   !Lenard Jones Potential 
   force_mag = 24.d0*((2.d0/(dot_product(r,r))**7)+(-1.d0/(dot_product(r,r))**4))
 
@@ -194,23 +196,23 @@ subroutine verlet_integration !{{{
 
   implicit none
 
-  integer :: ii,jj
+  integer :: ii
 
   call accel_calc(1)
   !first time step iteration
-  do jj = 1 , nprtl
-      pos(jj,1,2) = mod(pos(jj,1,1) + vel(jj,1,1) * dt + 0.5*accel(jj,1,1)*dt**2,xbound)
-      pos(jj,2,2) = mod(pos(jj,2,1) + vel(jj,2,1) * dt + 0.5*accel(jj,2,1)*dt**2,ybound)
-      pos(jj,3,2) = mod(pos(jj,3,1) + vel(jj,3,1) * dt + 0.5*accel(jj,3,1)*dt**2,zbound)
-      print*,'pos1',pos(1,:,1)
 
-  end do 
+  pos(:,:,2) = pos(:,:,1) + vel(:,:,1) * dt + 0.5*accel(:,:,1)*dt**2
+  pos(:,1,2) = modulo(pos(:,1,2),xbound)
+  pos(:,2,2) = modulo(pos(:,2,2),ybound)
+  pos(:,3,2) = modulo(pos(:,3,2),zbound)
+  print*,'pos1',pos(1,:,1) 
 
   do ii = 2 , NT
-      do jj = 1 , nprtl
-          call accel_calc(ii)
-          pos(jj,:,ii+1) = 2.d0*pos(jj,:,ii) - pos(jj,:,ii-1) + accel(jj,:,ii)*dt**2
-      end do     
+      call accel_calc(ii)
+      pos(:,:,ii+1) = 2.d0*pos(:,:,ii) - pos(:,:,ii-1) + accel(:,:,ii)*dt**2
+      pos(:,1,ii+1) = modulo(pos(:,1,ii+1),xbound)
+      pos(:,2,ii+1) = modulo(pos(:,2,ii+1),ybound)
+      pos(:,3,ii+1) = modulo(pos(:,3,ii+1),zbound)
       print*,"pos1",pos(1,:,ii)
   end do 
 
@@ -245,10 +247,4 @@ subroutine accel_calc(it) !{{{
 
 end subroutine !}}}
 
-subroutine checkboundry(it)
-    !function: checks boundry conditions
-    !
-
-
-end subroutine
 
