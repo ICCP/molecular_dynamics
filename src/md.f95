@@ -173,7 +173,8 @@ subroutine force_lj(pos1,pos2,force) !{{{
   r(1) = r(1) - NINT(r(1)/xbound)*xbound
   r(2) = r(2) - NINT(r(2)/ybound)*ybound
   r(3) = r(3) - NINT(r(3)/zbound)*zbound
-  !Lenard Jones Potential 
+  
+  !Lenard Jones force 
   force_mag = 24.d0*((2.d0/(dot_product(r,r))**7)+(-1.d0/(dot_product(r,r))**4))
 
   !Direction Force
@@ -230,7 +231,7 @@ subroutine accel_calc(it) !{{{
   implicit none
 
   !internal variable
-  real(8), dimension(3) :: prtl_force_lj !particle force from lenard jones
+  real(8), dimension(3) :: prtl_force_lj !particle force from Lennard-Jones
   integer :: it                          !current iteration
   integer :: ii, jj
 
@@ -246,5 +247,52 @@ subroutine accel_calc(it) !{{{
 
 
 end subroutine !}}}
+
+subroutine sys_energy(it) !{{{
+  !Function: Calculates the system energy 
+  !
+  !input: it - current time step ind
+  !
+  !Global Variables - 
+
+  use global
+ 
+  implicit none
+
+  !internal variable
+  real(8), Lenard_Jones_Potiential                              !Potiential Energy 
+  integer :: it                          !current iteration
+  integer :: ii, jj
+
+
+  do ii = 1, nprtl
+      do jj = 1, nprtl 
+          if (ii .ne. jj) then  
+              call force_lj(pos(ii,:,it),pos(jj,:,it),prtl_force_lj) 
+              accel(ii,:,it) = accel(ii,:,it) + prtl_force_lj
+          end if 
+      end do 
+  end do 
+
+
+
+    0.d5*
+
+end subroutine!}}}
+
+subroutine U_lj(pos1,pos2,p_energy)!{{{
+
+  !Finding the distance between points and adding periodic boundry conditions
+  r = pos1 - pos2
+  r(1) = r(1) - NINT(r(1)/xbound)*xbound
+  r(2) = r(2) - NINT(r(2)/ybound)*ybound
+  r(3) = r(3) - NINT(r(3)/zbound)*zbound
+
+  !Lenard Jones Potiential 
+  p_energy = 4.d0 * ((dot_product(r,r))**-6 - (dot_product(r,r))**-3)
+
+end subroutine U_lj!}}}
+
+
 
 

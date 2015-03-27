@@ -22,5 +22,8 @@ integer :: NT !Number of timestep
 !Array the hold the position of particles in the unit fcc cell
 real(8), dimension(4,3) :: fcc
 
+!Energy for a timestep
+real(8),allocatable,dimension(:) :: energy
+
 
 end module
