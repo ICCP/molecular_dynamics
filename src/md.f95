@@ -5,32 +5,44 @@ program md
   implicit none
   
   !Program Settings
-  nxcells = 10   !Number of cells in the X directions
-  nycells = 10   !Number of cells in the Y directions
-  nzcells = 10   !Number of cells in the Z direction
+  nxcells = 1    !Number of cells in the X direction
+  nycells = 1    !Number of cells in the Y direction
+  nzcells = 1    !Number of cells in the Z direction
+  
   xcellscl = 1.0 !Width of cell in X direction
   ycellscl = 1.0 !Width of cell in y direction
   zcellscl = 1.0 !Width of cell in z direction
-  ncells = nxcells*nycells*nzcells !Number of total boxes
-  ppc = 4            !particle per cell
+  
+  scalefactor = 1.12  
+
+  ncells = nxcells*nycells*nzcells !Number of Total Boxes
+  ppc = 4                          !Particle per Cell
+  
+  !Set up boundry conditions
+  xbound = nxcells*xcellscl*scalefactor 
+  ybound = nycells*ycellscl*scalefactor
+  zbound = nzcells*zcellscl*scalefactor
+  
   !nprtl = ncells*ppc !number of particles
-  nprtl = 2
+  nprtl = 1
+
   dt = 0.004*1.d0
+  
   !FCC Cordinates
   fcc(1,:) = (/0.0,0.0,0.0/)
   fcc(2,:) = (/0.0,0.5,0.5/)
   fcc(3,:) = (/0.5,0.5,0.0/)
   fcc(4,:) = (/0.5,0.0,0.5/)
  
-  NT = 10000
+  NT = 10000  !Number of timesteps
 
   allocate(pos(nprtl,3,NT))   !allocate position
   allocate(vel(nprtl,3,NT))   !allocate velocity
   allocate(accel(nprtl,3,NT)) !allocate acceration
 
-  call bld_lattice_two_prtl
   
-  print*,'verlet_integration'
+  !-----------Main Program-----------!
+  call bld_lattice_two_prtl
   call verlet_integration
   call writepos
   
@@ -63,9 +75,9 @@ subroutine bld_lattice !{{{
         prtlnum = (ii-1)*nycells*nxcells*ppc+(jj-1)*nxcells*ppc+(kk-1)*ppc + ll
         
         !Set inital position
-        pos(prtlnum,1,1) = (fcc(ll,1) + (ii-1)*xcellscl)*1.90637
-        pos(prtlnum,2,1) = (fcc(ll,2) + (jj-1)*ycellscl)*1.90637
-        pos(prtlnum,3,1) = (fcc(ll,3) + (kk-1)*zcellscl)*1.90637
+        pos(prtlnum,1,1) = (fcc(ll,1) + (ii-1)*xcellscl)*scalefactor
+        pos(prtlnum,2,1) = (fcc(ll,2) + (jj-1)*ycellscl)*scalefactor
+        pos(prtlnum,3,1) = (fcc(ll,3) + (kk-1)*zcellscl)*scalefactor
   
         !Create and scale random velocities
         call random_number(rand_vel)
@@ -87,10 +99,10 @@ subroutine bld_lattice_two_prtl !{{{
   implicit none
 
   pos(1,:,1) = [0.d0,0.d0,0.d0]    
-  pos(2,:,1) = [0.d0,0.d0,1.2*1.d0]
+  !pos(2,:,1) = [0.d0,0.d0,1.2*1.d0]
 
-  vel(1,:,1) = [0.d0,0.d0,0.d0]
-  vel(2,:,1) = [0.d0,0.d0,0.d0]
+  vel(1,:,1) = [0.d0,0.d0,.5*1.d0]
+  !vel(2,:,1) = [0.d0,0.d0,0.d0]
 end subroutine !}}}
 
 subroutine writepos !{{{
@@ -136,7 +148,7 @@ subroutine scalerand(randvel)  !{{{
 
   real(8),dimension(3) :: randvel
 
-  randvel = 2*randvel-1
+  randvel = randvel
   
 end subroutine  !}}}
 
@@ -182,15 +194,24 @@ subroutine verlet_integration !{{{
 
   implicit none
 
-  integer :: ii
-
+  integer :: ii,jj
 
   call accel_calc(1)
-  pos(:,:,2) = pos(:,:,1) + vel(:,:,1) * dt + 0.5*accel(:,:,1) * dt**2
+  !first time step iteration
+  do jj = 1 , nprtl
+      pos(jj,1,2) = mod(pos(jj,1,1) + vel(jj,1,1) * dt + 0.5*accel(jj,1,1)*dt**2,xbound)
+      pos(jj,2,2) = mod(pos(jj,2,1) + vel(jj,2,1) * dt + 0.5*accel(jj,2,1)*dt**2,ybound)
+      pos(jj,3,2) = mod(pos(jj,3,1) + vel(jj,3,1) * dt + 0.5*accel(jj,3,1)*dt**2,zbound)
+      print*,'pos1',pos(1,:,1)
+
+  end do 
+
   do ii = 2 , NT
-      call accel_calc(ii)
-      pos(:,:,ii+1) = 2.d0*pos(:,:,ii) - pos(:,:,ii-1) + accel(:,:,ii)*dt**2
-      print*,"pos1",pos(1,3,ii),'pos2',pos(2,3,ii)
+      do jj = 1 , nprtl
+          call accel_calc(ii)
+          pos(jj,:,ii+1) = 2.d0*pos(jj,:,ii) - pos(jj,:,ii-1) + accel(jj,:,ii)*dt**2
+      end do     
+      print*,"pos1",pos(1,:,ii)
   end do 
 
 end subroutine !}}}
@@ -224,5 +245,10 @@ subroutine accel_calc(it) !{{{
 
 end subroutine !}}}
 
+subroutine checkboundry(it)
+    !function: checks boundry conditions
+    !
 
+
+end subroutine
 

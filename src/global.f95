@@ -8,6 +8,8 @@ integer :: ppc                        !Particles Per Cell
 integer :: nprtl                      !Total Number of Particles
 integer :: prtlnum                    !Particle Number
 real(8) :: xcellscl,ycellscl,zcellscl !Width of fcc cell
+real(8) :: xbound,ybound,zbound       !Repeating boundries 
+real(8) :: scalefactor                !Scale factor
 
 !arrays that hold the positions and velocity of each particle
 real(8), dimension(:,:,:),allocatable :: pos,vel,accel   
