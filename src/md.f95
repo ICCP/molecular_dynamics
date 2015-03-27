@@ -260,27 +260,54 @@ subroutine sys_energy(it) !{{{
   implicit none
 
   !internal variable
-  real(8), Lenard_Jones_Potiential                              !Potiential Energy 
-  integer :: it                          !current iteration
-  integer :: ii, jj
-
+  real(8) :: LJPEnergy      !Potiential Energy
+  real(8) ::  KEnergy        !Kinetic Energy
+  integer :: it           !Current Iteration
+  integer :: ii, jj       !Indexers
 
   do ii = 1, nprtl
       do jj = 1, nprtl 
           if (ii .ne. jj) then  
-              call force_lj(pos(ii,:,it),pos(jj,:,it),prtl_force_lj) 
-              accel(ii,:,it) = accel(ii,:,it) + prtl_force_lj
+              call Lennard_Jones_Potential(pos(ii,:,it),pos(jj,:,it),LJPEnergy) 
+              energy = energy + LJPEnergy 
           end if 
       end do 
+      call kinetic_energy(vel(ii,:,it),KEnergy)
+      energy = energy + KEnergy
   end do 
-
-
-
-    0.d5*
 
 end subroutine!}}}
 
-subroutine U_lj(pos1,pos2,p_energy)!{{{
+subroutine Lennard_Jones_Potential(pos1,pos2,p_energy)!{{{
+  !{{{
+  !Function: take the position of two particles and compute the lennard Jones between them
+  !
+  !Input:
+  !   pos1 - Position of Particle one
+  !   pos2 - Position of Particle Two
+  !
+  !Output: 
+  !   p_energy - potential energy
+  !   
+  !Internal Variables:
+  !   r - distance vector from one particle to another
+  !
+  !Global Variables:
+  !   xbound -   
+  !   ybound -
+  !   zbound -
+  !
+  !}}}
+
+
+  use global
+  
+  !Input Variables
+  real(8), dimension(3),intent(in) :: pos1,pos2
+  real(8), intent(out) :: p_energy
+
+  !Internal Variables
+  real(8), dimension(3) :: r
 
   !Finding the distance between points and adding periodic boundry conditions
   r = pos1 - pos2
@@ -289,10 +316,26 @@ subroutine U_lj(pos1,pos2,p_energy)!{{{
   r(3) = r(3) - NINT(r(3)/zbound)*zbound
 
   !Lenard Jones Potiential 
-  p_energy = 4.d0 * ((dot_product(r,r))**-6 - (dot_product(r,r))**-3)
+  p_energy = 4.d0 * ((dot_product(r,r))**(-6) - (dot_product(r,r))**(-3))
 
-end subroutine U_lj!}}}
+end subroutine Lennard_Jones_Potential!}}}
 
+subroutine kinetic_energy(vel,k_energy)!{{{
+  !{{{
+  !Function: take the position of two particles and compute the lennard Jones between them
+  !
+  !Input:
+  !   vel - Velocity of Particle
+  !
+  !Output: 
+  !   k_energy - kinetic energy
+  !}}}
+  
+  !Input Variables
+  real(8), dimension(3),intent(in) :: vel
+  real(8), intent(out) :: k_energy
 
+  !Lenard Jones Potiential 
+  k_energy = 0.5*dot_product(vel,vel)
 
-
+end subroutine kinetic_energy !}}}
