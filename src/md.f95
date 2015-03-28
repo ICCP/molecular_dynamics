@@ -24,7 +24,7 @@ program md
   zbound = nzcells*zcellscl*scalefactor
   
   !nprtl = ncells*ppc !number of particles
-  nprtl = 1
+  nprtl = 2
 
   dt = 0.004*1.d0
   
@@ -34,7 +34,7 @@ program md
   fcc(3,:) = (/0.5,0.5,0.0/)
   fcc(4,:) = (/0.5,0.0,0.5/)
  
-  NT = 10000  !Number of timesteps
+  NT = 10  !Number of timesteps
 
   allocate(pos(nprtl,3,NT))   !allocate position
   allocate(vel(nprtl,3,NT))   !allocate velocity
@@ -45,7 +45,7 @@ program md
   call bld_lattice_two_prtl
   call verlet_integration
   call writepos
-  
+  call writeaccel 
   !call bld_lattice  !Create inital position of gas particles
   !call force_lj(fcc(2,:),fcc(1,:),force_test)
   !print*,'force_test:',force_test
@@ -99,10 +99,10 @@ subroutine bld_lattice_two_prtl !{{{
   implicit none
 
   pos(1,:,1) = [0.d0,0.d0,0.d0]    
-  !pos(2,:,1) = [0.d0,0.d0,1.2*1.d0]
+  pos(2,:,1) = [0.d0,0.d0,1.2*1.d0]
 
-  vel(1,:,1) = [0.d0,0.d0,.5*1.d0]
-  !vel(2,:,1) = [0.d0,0.d0,0.d0]
+  vel(1,:,1) = [0.d0,0.d0,0.d0]
+  vel(2,:,1) = [0.d0,0.d0,0.d0]
 end subroutine !}}}
 
 subroutine writepos !{{{
@@ -117,11 +117,11 @@ subroutine writepos !{{{
   open (unit = 1, file = 'pos.out', status = 'unknown')
   do ii = 1,nprtl
       do jj = 1, NT
-          write (1,*),ii,pos(ii,:,jj)
+          write (1,*),jj,pos(ii,:,jj)
       end do
   end do
 end subroutine !}}}
-
+!**************************************************************************
 subroutine writevel!{{{
   !Functionality - Write Velocity out to file
   
@@ -139,7 +139,24 @@ subroutine writevel!{{{
   end do
 
 end subroutine !}}}
+!**************************************************************************
+subroutine writeaccel!{{{
+  !Functionality - write acceration to file
+  
+  use global
 
+  implicit none
+
+  integer :: ii,jj
+
+  open (unit = 3, file = 'accel.out', status = 'unknown') 
+  do ii = 1,nprtl
+      do jj = 1, NT
+          write (3,*),jj,accel (ii,:,jj)
+      end do
+  end do
+end subroutine!}}}
+!**************************************************************************
 subroutine scalerand(randvel)  !{{{
 
   use global 
@@ -151,7 +168,7 @@ subroutine scalerand(randvel)  !{{{
   randvel = randvel
   
 end subroutine  !}}}
-
+!**************************************************************************
 subroutine force_lj(pos1,pos2,force) !{{{
   
   !Calculates the force due to the Lenard Jones Potiential 
@@ -181,7 +198,7 @@ subroutine force_lj(pos1,pos2,force) !{{{
   force = r * force_mag
 
 end subroutine !}}}
-
+!**************************************************************************
 subroutine verlet_integration !{{{
   !------------------------------------------------------------------------
   !Function - Calculate the postion of all the particles after NT timesteps
@@ -205,8 +222,7 @@ subroutine verlet_integration !{{{
   pos(:,:,2) = pos(:,:,1) + vel(:,:,1) * dt + 0.5*accel(:,:,1)*dt**2
   pos(:,1,2) = modulo(pos(:,1,2),xbound)
   pos(:,2,2) = modulo(pos(:,2,2),ybound)
-  pos(:,3,2) = modulo(pos(:,3,2),zbound)
-  print*,'pos1',pos(1,:,1) 
+  pos(:,3,2) = modulo(pos(:,3,2),zbound) 
 
   do ii = 2 , NT
       call accel_calc(ii)
@@ -214,11 +230,10 @@ subroutine verlet_integration !{{{
       pos(:,1,ii+1) = modulo(pos(:,1,ii+1),xbound)
       pos(:,2,ii+1) = modulo(pos(:,2,ii+1),ybound)
       pos(:,3,ii+1) = modulo(pos(:,3,ii+1),zbound)
-      print*,"pos1",pos(1,:,ii)
   end do 
 
 end subroutine !}}}
-
+!**************************************************************************
 subroutine accel_calc(it) !{{{
   !Function: Calculates the acceleration of every particle from the iteration of every other particle
   !
@@ -247,7 +262,7 @@ subroutine accel_calc(it) !{{{
 
 
 end subroutine !}}}
-
+!**************************************************************************
 subroutine sys_energy(it) !{{{
   !Function: Calculates the system energy 
   !
@@ -277,7 +292,7 @@ subroutine sys_energy(it) !{{{
   end do 
 
 end subroutine!}}}
-
+!**************************************************************************
 subroutine Lennard_Jones_Potential(pos1,pos2,p_energy)!{{{
   !{{{
   !Function: take the position of two particles and compute the lennard Jones between them
@@ -319,7 +334,7 @@ subroutine Lennard_Jones_Potential(pos1,pos2,p_energy)!{{{
   p_energy = 4.d0 * ((dot_product(r,r))**(-6) - (dot_product(r,r))**(-3))
 
 end subroutine Lennard_Jones_Potential!}}}
-
+!**************************************************************************
 subroutine kinetic_energy(vel,k_energy)!{{{
   !{{{
   !Function: take the position of two particles and compute the lennard Jones between them
