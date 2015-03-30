@@ -3,8 +3,6 @@ program md
   use global
 
   implicit none
-  
-  real(8) :: teste
 
   !Program Settings
   nxcells = 1    !Number of cells in the X direction
@@ -15,7 +13,7 @@ program md
   ycellscl = 1.0 !Width of cell in y direction
   zcellscl = 1.0 !Width of cell in z direction
   
-  scalefactor = 1.12  
+  scalefactor = 2.5  
 
   ncells = nxcells*nycells*nzcells !Number of Total Boxes
   ppc = 4                          !Particle per Cell
@@ -54,10 +52,6 @@ program md
   call verlet_integration
   call writepos
   call writeaccel 
-  call plot_lj_force
-  call plot_lj_pot
-  call kinetic_energy([0.d0,0.d0,1.d0],teste)
-  print*, 'KE:',teste
   !call bld_lattice  !Create inital position of gas particles
   !call force_lj(fcc(2,:),fcc(1,:),force_test)
   !print*,'force_test:',force_test
@@ -199,9 +193,9 @@ subroutine force_lj(pos1,pos2,force) !{{{
   real(8) :: force_mag       !Magnitude of the Force
 
   r = pos1 - pos2             !Finding the Distance Between the Points
-  !r(1) = r(1) - NINT(r(1)/xbound)*xbound
-  !r(2) = r(2) - NINT(r(2)/ybound)*ybound
-  !r(3) = r(3) - NINT(r(3)/zbound)*zbound
+  r(1) = r(1) - NINT(r(1)/xbound)*xbound
+  r(2) = r(2) - NINT(r(2)/ybound)*ybound
+  r(3) = r(3) - NINT(r(3)/zbound)*zbound
   
   !Lenard Jones force 
   force_mag = 24.d0*((2.d0/(dot_product(r,r))**7)+(-1.d0/(dot_product(r,r))**4))
@@ -232,14 +226,12 @@ subroutine verlet_integration !{{{
   !first time step iteration
   do ii = 1 , NT-1 
       pos(:,:,ii+1) = pos(:,:,ii) + vel(:,:,ii) * dt + 0.5*accel(:,:,ii)*dt**2 
-      !pos(:,1,ii+1) = modulo(pos(:,1,ii+1),xbound)
-      !pos(:,2,ii+1) = modulo(pos(:,2,ii+1),ybound)
-      !pos(:,3,ii+1) = modulo(pos(:,3,ii+1),zbound)
+      pos(:,1,ii+1) = mod(pos(:,1,ii+1),xbound)
+      pos(:,2,ii+1) = mod(pos(:,2,ii+1),ybound)
+      pos(:,3,ii+1) = mod(pos(:,3,ii+1),zbound)
 
       call accel_calc(ii+1)
       vel(:,:,ii+1) = vel(:,:,ii) + 0.5*(accel(:,:,ii+1)+accel(:,:,ii))*dt
-      print*,'Calculating system energy:'   
-      !call sys_energy(ii) !Calculate system energy
   end do 
 
 end subroutine !}}}
