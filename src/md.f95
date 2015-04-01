@@ -1,405 +1,269 @@
 program md
 
-  use global
-
   implicit none
+  
+  integer :: nprtl          !Number of particle in a direction
+  integer :: ncells         !Number of cells in one dimension
+  integer :: NT
+  real(8) :: boxlength      !Length of one box
+  real(8) :: neighbor_dist  !Distance to nearest neighbor
+  real(8) :: bounds
+  real(8),dimension(:,:),allocatable :: pos,vel,accel
+  
+  NT = 1000      !Number of Time Steps
+  ncells = 1
+  nprtl  = 4*ncells**3
+  neighbor_dist = 2.d0**(1.d0/6.d0)-0.1
+  boxlength = 2.d0 / sqrt(2.d0) * neighbor_dist
+  bounds = ncells*boxlength
 
-  !Program Settings
-  nxcells = 1    !Number of cells in the X direction
-  nycells = 1    !Number of cells in the Y direction
-  nzcells = 1    !Number of cells in the Z direction
-  
-  xcellscl = 1.0 !Width of cell in X direction
-  ycellscl = 1.0 !Width of cell in y direction
-  zcellscl = 1.0 !Width of cell in z direction
-  
-  scalefactor = 2.5  
-
-  ncells = nxcells*nycells*nzcells !Number of Total Boxes
-  ppc = 4                          !Particle per Cell
-  
-  !Set up boundry conditions
-  xbound = nxcells*xcellscl*scalefactor 
-  ybound = nycells*ycellscl*scalefactor
-  zbound = nzcells*zcellscl*scalefactor
-  
-  !nprtl = ncells*ppc !number of particles
-  nprtl = 2
-
-  dt = 0.004
-  
-  !FCC Cordinates
-  fcc(1,:) = (/0.0,0.0,0.0/)
-  fcc(2,:) = (/0.0,0.5,0.5/)
-  fcc(3,:) = (/0.5,0.5,0.0/)
-  fcc(4,:) = (/0.5,0.0,0.5/)
- 
-  NT = 1000  !Number of timesteps
-
-  allocate(pos(nprtl,3,NT))   !allocate position
-  allocate(vel(nprtl,3,NT))   !allocate velocity
-  allocate(accel(nprtl,3,NT)) !allocate acceration
+  allocate(pos(nprtl,3))
+  allocate(vel(nprtl,3))
+  allocate(accel(nprtl,3))
   
   pos = 0
   vel = 0 
-  accel = 0 
-  
-  !open(unit = 6, file = 'energy.out', status = 'unknown')
+  accel = 0
 
-  !-----------Main Program-----------!
-  print*,"Main Program "
-  call bld_lattice_two_prtl
-  call verlet_integration
-  call writepos
-  call writeaccel 
-  !call bld_lattice  !Create inital position of gas particles
-  !call force_lj(fcc(2,:),fcc(1,:),force_test)
-  !print*,'force_test:',force_test
-  !call accel_calc(1)
-
-
-
-end program
-
-subroutine bld_lattice !{{{
-  !Functionality: Creates the inital position of all the particles in the box.
-  !
-  !Input: pos - position array that hold the cartesian cordinates of the particles.
-  !             Array on input should be zeros.
-  !Output: pos -
-  
-  use global
-
-  implicit none
-
-  integer :: ii, jj, kk, ll
-
-  do ii = 1,nzcells
-    do jj = 1,nycells
-      do kk = 1,nxcells
-        do ll = 1,ppc
-        prtlnum = (ii-1)*nycells*nxcells*ppc+(jj-1)*nxcells*ppc+(kk-1)*ppc + ll
-        
-        !Set inital position
-        pos(prtlnum,1,1) = (fcc(ll,1) + (ii-1)*xcellscl)*scalefactor
-        pos(prtlnum,2,1) = (fcc(ll,2) + (jj-1)*ycellscl)*scalefactor
-        pos(prtlnum,3,1) = (fcc(ll,3) + (kk-1)*zcellscl)*scalefactor
-  
-        !Create and scale random velocities
-        call random_number(rand_vel)
-        call scalerand(rand_vel)
-
-        !Assign random velocities
-        vel(prtlnum,1:3,1) = rand_vel
-        end do 
-      end do 
-    end do
-  end do
-
-end subroutine !}}}
-!**************************************************************************
-subroutine bld_lattice_two_prtl !{{{
-
-  use global
-
-  implicit none
-
-  pos(1,:,1) = [0.d0,0.d0,0.d0]    
-  pos(2,:,1) = [0.d0,0.d0,1.125*1.d0]
-
-  vel(1,:,1) = [0.d0,0.d0,0.d0]
-  vel(2,:,1) = [0.d0,0.d0,0.d0]
-end subroutine !}}}
-!**************************************************************************
-subroutine writepos !{{{
-  !Functionality - write position out to file
-
-  use global
-  
-  implicit none
-
-  integer :: ii,jj
-
-  open (unit = 1, file = 'pos.out', status = 'unknown')
-  do ii = 1,nprtl
-      do jj = 1, NT
-          write (1,*),jj,pos(ii,:,jj)
-      end do
-  end do
-end subroutine !}}}
-!**************************************************************************
-subroutine writevel!{{{
-  !Functionality - Write Velocity out to file
-  
-  use global
-   
-  implicit none
-
-  integer :: ii,jj
-
-  open (unit = 2, file = 'vel.out', status = 'unknown')
-  do ii = 1,nprtl
-      do jj = 1,NT
-          write (2,*),ii,vel(ii,:,jj)
-      end do
-  end do
-
-end subroutine !}}}
-!**************************************************************************
-subroutine writeaccel!{{{
-  !Functionality - write acceration to file
-  
-  use global
-
-  implicit none
-
-  integer :: ii,jj
-
-  open (unit = 3, file = 'accel.out', status = 'unknown') 
-  do ii = 1,nprtl
-      do jj = 1, NT
-          write (3,*),jj,accel (ii,:,jj)
-      end do
-  end do
-end subroutine!}}}
-!**************************************************************************
-subroutine scalerand(randvel)  !{{{
-
-  use global 
-
-  implicit none
-
-  real(8),dimension(3) :: randvel
-
-  randvel = randvel
-  
-end subroutine  !}}}
-!**************************************************************************
-subroutine force_lj(pos1,pos2,force) !{{{
-  
-  !Calculates the force due to the Lenard Jones Potiential 
-  !Input: pos1,pos2- position of the first and second particle
-  
-  use global
-
-  implicit none
-  
-  !input variabels 
-  real(8),dimension(3),intent(in) :: pos1,pos2  !position of particle 1 and 2
-  real(8),dimension(3),intent(out) :: force      !force between particles
-  
-  !Internal Variable
-  real(8),dimension(3) :: r  !Distance Between Radius
-  real(8) :: force_mag       !Magnitude of the Force
-
-  r = pos1 - pos2             !Finding the Distance Between the Points
-  r(1) = r(1) - NINT(r(1)/xbound)*xbound
-  r(2) = r(2) - NINT(r(2)/ybound)*ybound
-  r(3) = r(3) - NINT(r(3)/zbound)*zbound
-  
-  !Lenard Jones force 
-  force_mag = 24.d0*((2.d0/(dot_product(r,r))**7)+(-1.d0/(dot_product(r,r))**4))
-
-  !Direction Force
-  force = r * force_mag
-
-end subroutine !}}}
-!**************************************************************************
-subroutine verlet_integration !{{{
-  !------------------------------------------------------------------------
-  !Function - Calculate the postion of all the particles after NT timesteps
-  !
-  !Input:  pos - position of every particle over NT timesteps
-  !        vel - velocity of every particle over NT timesteps
-  !        accel - acceration of every particle over NT timesteps
-  !        NT - number of timesteps 
-  !Output: pos
-  !------------------------------------------------------------------------
-  
-  use global 
-
-  implicit none
-
-  integer :: ii
-
-  call accel_calc(1)
-  !first time step iteration
-  do ii = 1 , NT-1 
-      pos(:,:,ii+1) = pos(:,:,ii) + vel(:,:,ii) * dt + 0.5*accel(:,:,ii)*dt**2 
-      pos(:,1,ii+1) = mod(pos(:,1,ii+1),xbound)
-      pos(:,2,ii+1) = mod(pos(:,2,ii+1),ybound)
-      pos(:,3,ii+1) = mod(pos(:,3,ii+1),zbound)
-
-      call accel_calc(ii+1)
-      vel(:,:,ii+1) = vel(:,:,ii) + 0.5*(accel(:,:,ii+1)+accel(:,:,ii))*dt
-  end do 
-
-end subroutine !}}}
-!**************************************************************************
-subroutine accel_calc(it) !{{{
-  !Function: Calculates the acceleration of every particle from the iteration of every other particle
-  !
-  !input: it - current time step indexer
-  !
-  !Global Variables - 
-
-  use global
+  open(unit = 2, file = 'pos.xyz', status = 'unknown')
  
+  print*,'neighbor_dist',neighbor_dist
+  print*,'boxlength', boxlength 
+  print*,'bounds:',bounds
+  
+  call bld_lattice(pos,ncells,boxlength,nprtl)
+  call xyz_file_printout(pos,nprtl,1)
+  !call force_calc(pos,nprtl,accel)
+  !call xyz_file_printout(accel,nprtl,2)
+  call verlet_velocity_integration(pos,vel,accel,nprtl,NT,bounds)
+
+end program 
+
+subroutine bld_lattice(pos_prtl,numcells_wide,cell_width,numprtl) !{{{
+  
   implicit none
 
-  !internal variable
-  real(8), dimension(3) :: prtl_force_lj !particle force from Lennard-Jones
-  integer :: it                          !current iteration
-  integer :: ii, jj
+  !Input
+  real(8) :: cell_width
+  integer :: numcells_wide
+  integer :: numprtl
+  real(8),dimension(numprtl,3) :: pos_prtl
+
+  !Internal
+  integer :: ii,jj,kk,ll,prtl_count
+  real(8),dimension(4,3) :: fcc
 
 
-  do ii = 1, nprtl
-      do jj = 1, nprtl 
-          if (ii .ne. jj) then  
-              call force_lj(pos(ii,:,it),pos(jj,:,it),prtl_force_lj) 
-              accel(ii,:,it) = accel(ii,:,it) + prtl_force_lj
-          end if 
+  !FCC Cordinates
+  fcc(1,:) = [0.d0,0.d0,0.d0]
+  fcc(2,:) = [0.d0,cell_width/2.d0,cell_width/2.d0]
+  fcc(3,:) = [cell_width/2.d0,0.d0,cell_width/2.d0]
+  fcc(4,:) = [cell_width/2.d0,cell_width/2.d0,0.d0]
+ 
+  prtl_count = 0
+
+  do ii = 1,numcells_wide
+      do jj = 1,numcells_wide
+          do kk = 1, numcells_wide
+              do ll = 1,4
+                  prtl_count = (ii-1)*numcells_wide**3 + (jj-1)*numcells_wide**2 + (kk-1)*numcells_wide + ll
+                  pos_prtl(prtl_count,1) = fcc(ll,1) + (ii-1)*cell_width
+                  pos_prtl(prtl_count,2) = fcc(ll,2) + (jj-1)*cell_width
+                  pos_prtl(prtl_count,3) = fcc(ll,3) + (kk-1)*cell_width
+              end do 
+          end do
       end do 
   end do 
 
 
 end subroutine !}}}
-!**************************************************************************
-subroutine sys_energy(it) !{{{
-  !Function: Calculates the system energy 
-  !
-  !input: it - current time step ind
-  !
-  !Global Variables - 
 
-  use global
- 
+subroutine xyz_file_printout(pos_prtl,numprtl,timestep) !{{{
+  
   implicit none
 
-  !internal variable
-  real(8) :: LJPEnergy = 0      !Potiential Energy
-  real(8) :: KEnergy   = 0      !Kinetic Energy
-  real(8) :: LJPE_tot  = 0      !Total pot E for the time step
-  real(8) :: KE_tot    = 0      !Total Kinetic Energy for the time step
-  integer :: it             !Current Iteration
-  integer :: ii, jj         !Indexers
-
-  
-  do ii = 1, nprtl
-      do jj = 1, nprtl 
-          if (ii .ne. jj) then  
-              print*,'particle interaction:',ii,jj
-              call Lennard_Jones_Potential(pos(ii,:,it),pos(jj,:,it),LJPEnergy) 
-              print*,'energy:',LJPEnergy
-              LJPE_tot = LJPE_tot + LJPEnergy 
-          end if 
-      end do 
-      print*,'Particle vel test:',vel(ii,:,it)
-      call kinetic_energy(vel(ii,:,it),KEnergy)
-      print*,'particle ke:', KEnergy
-      KE_tot = KE_tot + KEnergy
-  end do
-  energy = KE_tot + LJPE_tot
-  !write(6,*), energy, KE_tot , LJPE_tot
-end subroutine!}}}
-!**************************************************************************
-subroutine Lennard_Jones_Potential(pos1,pos2,p_energy)!{{{
-  !{{{
-  !Function: take the position of two particles and compute the lennard Jones between them
-  !
-  !Input:
-  !   pos1 - Position of Particle one
-  !   pos2 - Position of Particle Two
-  !
-  !Output: 
-  !   p_energy - potential energy
-  !   
-  !Internal Variables:
-  !   r - distance vector from one particle to another
-  !
-  !Global Variables:
-  !   xbound -   
-  !   ybound -
-  !   zbound -
-  !
-  !}}}
-
-
-  use global
-  
   !Input Variables
-  real(8), dimension(3),intent(in) :: pos1,pos2
-  real(8), intent(out) :: p_energy
-
+  integer :: numprtl
+  integer :: timestep
+  real(8),dimension(numprtl,3) :: pos_prtl
+  
   !Internal Variables
-  real(8), dimension(3) :: r
+  integer :: ii
 
-  !Finding the distance between points and adding periodic boundry conditions
-  r = pos1 - pos2
-  !r(1) = r(1) - NINT(r(1)/xbound)*xbound
-  !r(2) = r(2) - NINT(r(2)/ybound)*ybound
-  !r(3) = r(3) - NINT(r(3)/zbound)*zbound
 
-  !Lenard Jones Potiential 
-  p_energy = 4.d0 * ((dot_product(r,r))**(-6) - (dot_product(r,r))**(-3))
+  write(2,*),numprtl
+  write(2,*),'Particles at time step:',timestep
+  !Internal Variables
+  do ii = 1,numprtl
+      write(2,*),ii,pos_prtl(ii,:)
+  end do 
 
-end subroutine Lennard_Jones_Potential!}}}
-!**************************************************************************
-subroutine kinetic_energy(vel,k_energy)!{{{
-  !{{{
-  !Function: take the position of two particles and compute the lennard Jones between them
-  !
-  !Input:
-  !   vel - Velocity of Particle
-  !
-  !Output: 
-  !   k_energy - kinetic energy
-  !}}}
-  
+end subroutine !}}}
+
+subroutine force_calc(pos_prtl,numprtl,boundry,force)!{{{
+
+  implicit none
+
   !Input Variables
-  real(8), dimension(3) :: vel
-  real(8) :: k_energy
-
-  !Lenard Jones Potiential 
-  k_energy = 0.5*dot_product(vel,vel)
-
-end subroutine kinetic_energy !}}}
-!**************************************************************************
-subroutine plot_lj_force!{{{
-  !Samples force_lj routine to be able to plot and verify lenard jones force
-
-  use global 
-
-  integer :: ii
-  integer :: npoints = 200
-  real(8) :: rtest
-  real(8),dimension(3) :: ljforce
-  
-  open(unit = 4, file = 'ljforce.out', status = 'unknown')
-  do ii = 1 , npoints
-      rtest = .01*real(ii) + 0.2
-      call force_lj([0.d0,0.d0,0.d0],[0.d0,0.d0,rtest],ljforce)
-      write(4,*),rtest,ljforce   
+  integer :: numprtl
+  real(8),dimension(numprtl,3) :: pos_prtl,force
+  real(8) :: boundry
+  !Internal Variables
+  integer :: ii, jj 
+  real(8),dimension(3) :: dr
+  real(8) :: drsq       !value of 
+  real(8) :: force_mag
+  real(8) :: min_dist
+  min_dist = 10000
+  do ii = 1,numprtl-1
+      do jj = ii+1,numprtl
+          dr = pos_prtl(jj,:) - pos_prtl(ii,:)
+          dr = dr - NINT(dr/boundry)*boundry
+          drsq = dot_product(dr,dr)
+          !print out the smallest interations distance
+          if (min_dist > sqrt(drsq)) min_dist = sqrt(drsq)
+          
+          force_mag = (-48.d0/drsq**7 + 24/drsq**4)
+          force(ii,:) = force(ii,:) + force_mag*dr
+          force(jj,:) = force(jj,:) - force_mag*dr
+      end do 
   end do 
-end subroutine!}}}
-!**************************************************************************
-subroutine plot_lj_pot!{{{
-  !Samples force_lj routine to be able to plot and verify lenard jones potiential
 
-  use global 
-
-  integer :: ii
-  integer :: npoints = 200
-  real(8) :: rtest
-  real(8) :: ljpot
-  
-  open(unit = 5, file = 'ljpot.out', status = 'unknown')
-  do ii = 1 , npoints
-      rtest = .01*real(ii) + 0.2
-      call Lennard_Jones_Potential([0.d0,0.d0,0.d0],[0.d0,0.d0,rtest],ljpot)
-      write(5,*),rtest,ljpot   
-  end do 
+print*,'min_dist:', min_dist
 end subroutine!}}}
 
+subroutine verlet_velocity_integration(pos_prtl,vel_prtl,accel_prtl,numprtl,numts,boundry)!{{{
 
+  implicit none
+
+  !Input Variables
+  integer :: numprtl
+  integer :: numts
+  real(8),dimension(numprtl,3) :: pos_prtl,vel_prtl,accel_prtl
+  real(8) :: boundry
+  !Internal Variables
+  integer :: ii
+  real(8) :: dt = 0.004   !Not a paramerter I want to change
+  real(8),dimension(numprtl,3) :: vel_p,vel_pp,accel_p,accel_pp,pos_p,pos_pp
+  
+  vel_p    = 0.d0
+  vel_pp   = 0.d0
+  accel_p  = 0.d0
+  accel_pp = 0.d0
+  pos_p    = 0.d0
+  pos_pp   = 0.d0
+
+
+  do ii = 1,numts
+
+      !Calculate vel for t+.5
+      !vel_prtl = vel_prtl + 0.5*accel_prtl*dt                
+      
+      !Calculate pos for t+1
+      !pos_prtl = pos_prtl + vel_prtl*dt                      
+      
+      !Boundry Condition on position
+      !pos_prtl = modulo(pos_prtl,boundry)
+      !Past time steps move to past past time steps
+      pos_pp   = pos_p
+      vel_pp   = vel_p 
+      accel_pp = accel_p
+      
+      !Current time steps go to past time steps
+      pos_p    = pos_prtl
+      vel_p    = vel_prtl
+      accel_p  = accel_prtl
+
+      !Calculate vel for t+.5
+      vel_prtl = vel_p + 0.5*accel_p*dt                
+      
+      !Calculate pos for t+1
+      pos_prtl = pos_p + vel_p*dt 
+      pos_prtl = pos_prtl + 0.5d0*dt*dt*accel_p
+
+      accel_prtl = 0.d0
+      
+      !Recalculate Force
+      call force_calc(pos_prtl,numprtl,boundry,accel_prtl)   !Calculate acceleration  for t+1
+      
+      !Update Velocity
+      vel_prtl = vel_prtl + 0.5*accel_prtl*dt                !Calculate vel for t+1
+
+      call xyz_file_printout(pos_prtl,numprtl,ii)
+  end do 
+end subroutine!}}}
+
+subroutine verlet_velocity(pos_prtl,vel_prtl,accel_prtl,numprtl,numts,boundry)!{{{
+
+  implicit none
+
+  !Input Variables
+  integer :: numprtl
+  integer :: numts
+  real(8),dimension(numprtl,3) :: pos_prtl,vel_prtl,accel_prtl
+  real(8) :: boundry
+  
+  !Internal Variables
+  integer :: ii,jj,kk
+  real(8) :: dt = 0.004   !Not a paramerter I want to change
+  real(8),dimension(3) :: dr
+  real(8) :: drsq
+  real(8) :: force_mag
+  real(8) :: min_dist
+  real(8),dimension(numprtl,3) :: vel_p,vel_pp,accel_p,accel_pp,pos_p,pos_pp
+  
+  vel_p    = 0.d0
+  vel_pp   = 0.d0
+  accel_p  = 0.d0
+  accel_pp = 0.d0
+  pos_p    = 0.d0
+  pos_pp   = 0.d0
+  
+  do ii = 1,numts
+      !Past time steps move to past past time steps
+      pos_pp   = pos_p
+      vel_pp   = vel_p 
+      accel_pp = accel_p
+      
+      !Current time steps go to past time steps
+      pos_p    = pos_prtl
+      vel_p    = vel_prtl
+      accel_p  = accel_prtl
+
+      !Calculate vel for t+.5
+      vel_prtl = vel_p + 0.5*accel_p*dt                
+      
+      !Calculate pos for t+1
+      pos_prtl = pos_p + vel_p*dt 
+      pos_prtl = pos_prtl + 0.5d0*dt*dt*accel_p
+      
+      !Boundry Condition on position
+      pos_prtl = modulo(pos_prtl,boundry)
+      
+      !Recalculate Force
+      accel_prtl = 0.d0
+      min_dist = 10000
+      do jj = 1,numprtl-1
+          do kk = jj+1,numprtl
+              dr = pos_prtl(kk,:) - pos_prtl(jj,:)
+              dr = dr - dble(NINT(dr/boundry)*boundry)
+              drsq = dot_product(dr,dr)
+              !print out the smallest interations distance
+              if (min_dist > sqrt(drsq)) min_dist = sqrt(drsq)
+          
+              force_mag = (-48.d0/drsq**(7.d0) + 24.d0/drsq**(4.d0))
+              accel_prtl(jj,:) = accel_prtl(jj,:) + force_mag*dr
+              accel_prtl(kk,:) = accel_prtl(kk,:) - force_mag*dr
+          end do 
+      end do 
+
+      print*,'min_dist:', min_dist
+      !Update Velocity
+      vel_prtl = vel_prtl + 0.5*accel_prtl*dt                !Calculate vel for t+1
+
+      call xyz_file_printout(pos_prtl,numprtl,ii)
+  end do 
+
+
+end subroutine!}}}
 
