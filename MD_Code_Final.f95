@@ -15,33 +15,42 @@ integer, parameter :: out_unit4=40,out_unit5=50
 integer, parameter :: out_unit10=100,out_unit9=90
 Real, dimension(timeSteps) :: MSD
 
-T0=0.5
+T0=3
 dt=0.0001
 time=0
 
 B=(2.0**(2.0/3.0))/2.0
 boxLength=B*2*l
 
+! Open files, seed random number generator and initialize 
+! lattice positions and velocities.
 Call open_output_files()
 Call seed_number_generator()
-
 Call setup_lattice(l,r0,r,boxLength)
 Call initialize_velocities(v,T0)
 
+! Write initial positions and velocities to a file.
 do i=1,N
     write (out_unit1,*) r(i,:)
     write (out_unit2,*) v(i,:)
 end do
 
+! Calculate the initial forces, potential energy and
+! kinetic energy and write the energies to a file
 Call Calculate_Forces(r,F,boxLength,potentialEnergy,P)
 Call Calculate_Kinetic_Energy(v,kineticEnergy)
+totalEnergy=potentialEnergy+kineticEnergy 
 write (out_unit3,*) time, kineticEnergy
 write (out_unit4,*) time, potentialEnergy
-	
+write (out_unit5,*) time, totalEnergy
+
+! Loop through specified number of timesteps while executing
+! the Verlet algorithm and calculating, and writing to files, 
+! the energy values.	
 do count=1,timeSteps
     time=time+dt
 	Call Verlet(r,dt,v,F,boxLength)
-    Call Shift_Velocity_Center(v)
+	r(:,:) = MODULO(r(:, :), boxLength)
     count2=count/100
 	if (count2==1 .OR. count2==2 .OR. count2==3 .OR. count2==4) then
         Call Andersen_Thermostat(v,T0,T)
@@ -49,8 +58,6 @@ do count=1,timeSteps
 	if (count2==5) then
         Call Andersen_Thermostat(v,T0,T)
     End if
-
-!    Call Calculate_Potential_Energy(r,boxLength,potentialEnergy)
     Call Calculate_Kinetic_Energy(v,kineticEnergy)
     totalEnergy=potentialEnergy+kineticEnergy 
 	Call Calculate_MSD(r,r0,MSD,count)
@@ -64,7 +71,8 @@ end do
 	
 Call close_output_files()
 
-	
+! Calculate and write out the final temperature to compare
+! ro initial specified temperature.	
 	T=0
 	do i=1,N
 	    do j=1,3
@@ -123,6 +131,10 @@ Subroutine seed_number_generator()
 End Subroutine
 
 Subroutine setup_lattice(l,r0,r,boxLength)
+! Creates an FCC lattice with the shortest
+! distance between two atoms being the 
+! distance that gives the lowest Lennard-
+! Jones potential energy.
     IMPLICIT NONE
     Real :: B,boxLength
     Integer :: l, i, count, j, k, m
@@ -144,8 +156,7 @@ do i=1,l
             do m=1,4
                 r0(count,1)=rUnit(m,1)+Float(i-1)*B*2.0
                 r0(count,2)=rUnit(m,2)+Float(j-1)*B*2.0
-                r0(count,3)=rUnit(m,3)+Float(k-1)*B*2.0
-				
+                r0(count,3)=rUnit(m,3)+Float(k-1)*B*2.0				
                 count=count+1
             end do
          end do
@@ -159,8 +170,7 @@ end do
 End Subroutine
 
 Subroutine get_random_number(u)
-    IMPLICIT NONE
-	
+    IMPLICIT NONE	
     real :: r,u
 
     CALL RANDOM_NUMBER(r)
@@ -168,6 +178,8 @@ Subroutine get_random_number(u)
 End Subroutine
 
 Subroutine Shift_Velocity_Center(v)
+! Makes the overall velocity of the 
+! lattice zero.
     IMPLICIT NONE
     real, dimension(N,3) :: v
     real, dimension(3) :: sumV
@@ -263,31 +275,6 @@ Subroutine Calculate_Forces(r,F,boxLength,potentialEnergy,P)
 	P=P/((boxLength**3)*1.0)
 End Subroutine
 
-Subroutine Calculate_New_Positions(r,dt,v,F)
-    IMPLICIT NONE
-	Real, dimension(N,3) :: r,v,F,r0
-	Real :: dt
-	Integer :: i
-	
-	r0(:,:)=r(:,:)
-
-	do i=1,N
-        r(i,:)=r0(i,:)+(dt*v(i,:))+(0.5*(dt**2)*F(i,:))
-    end do
-End Subroutine
-
-Subroutine Calculate_New_Velocities(v,dt,F,F0)
-    IMPLICIT NONE
-	Real, dimension(N,3) :: r,v,F,v0,F0
-	Real :: dt
-	Integer :: i
-	
-	v0(:,:)=v(:,:)
-	do i=1,N
-        v(i,:)=v0(i,:)+(dt*0.5*(F(i,:)+F0(i,:)))
-    end do
-End Subroutine
-
 Subroutine Calculate_Kinetic_Energy(v,kineticEnergy)
     IMPLICIT NONE
 	Real, dimension(N,3) :: v
@@ -309,7 +296,9 @@ Subroutine Verlet(r,dt,v,F,boxLength)
 	v(:,:)=v(:,:)+(0.5*dt*F(:,:))
 	r(:,:)=r(:,:)+(v(:,:)*dt)
 	Call Calculate_Forces(r,F,boxLength,potentialEnergy,P)
-	v(:,:)=v(:,:)+(0.5*F(:,:)*dt)
+	v(:,:)=v(:,:)+(0.5*F(:,:)*dt)	
+    Call Shift_Velocity_Center(v)
+	
 End Subroutine	
 	
 Subroutine Calculate_Temperature(v,T)
@@ -341,16 +330,20 @@ End Subroutine
 Subroutine Calculate_MSD(r,r0,MSD,count)
     IMPLICIT NONE
 	Real, dimension(N,3) :: r,r0
+	Real, dimension(3) :: dr
 	Real, dimension(timeSteps) :: MSD
     Integer :: count
+	real :: rsq
 	MSD(count)=0.0
 	
 	do i=1,N
-	    do j=1,3
-		    MSD(count)=MSD(count)+((r(i,j)-r0(i,j))**2)
+			dr(:)=r(i,:)-r0(i,:)
+			dr(:)=dr(:)-NINT(dr(:)/boxLength)*boxLength
+			rsq=dot_product(dr, dr)
+		    MSD(count)=MSD(count)+rsq
 	    end do
-	end do
-	MSD(count)=MSD(count)/4.0
+	
+	MSD(count)=MSD(count)/(N*1.0)
 
 End Subroutine
 
