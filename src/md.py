@@ -15,12 +15,12 @@ sigma = 1
 epsilon  = 1
 # Lattice position
 init_lat_pos = open('initial_lattice.dat', 'w')
-# Provide a number of latticein x direction below:
-L = 2 
+# Provide a number of lattice in x direction below:
+L = 6 
 B = 2**(1/6.0)*sigma
 Lattice = (2**0.5)*B # Length of a single lattice
 #
-print "Lattice ", Lattice
+print "Length of cubic box ", Lattice*L
 N = 4*L**3 # Total number of atoms
 #
 atom_pos = np.zeros((N,3))
@@ -65,6 +65,7 @@ KE = energy_arr[:,2]
 tot_E = energy_arr[:,3]
 Temp = energy_arr[:,4]
 momentum = energy_arr[:,5]
+pressure = energy_arr[:,6]
 #
 #plt.figure(1,figsize=(6,6))
 plt.plot(time,PE,'r',label='Potential Energy')
@@ -75,7 +76,7 @@ plt.xlabel('time')
 plt.ylabel('Energy')
 plt.title('Energy vs time plot')
 plt.show()
-#plt.savefig("Energyplot.pdf")
+#plt.savefig("Energy0dot1.pdf")
 #
 #plt.figure(1,figsize=(6,6))
 plt.plot(time,Temp)
@@ -84,6 +85,14 @@ plt.ylabel('Scaled Temperature')
 plt.title('Temperature vs time plot')
 plt.show()
 #plt.savefig("TempPlot.pdf")
+#
+#plt.figure(1,figsize=(6,6))
+plt.plot(time,pressure)
+plt.xlabel('time')
+plt.ylabel('Scaled Pressure')
+plt.title('Pressure vs time plot')
+plt.show()
+#plt.savefig("PressurePlot.pdf")
 #
 #plt.figure(1,figsize=(10,6))
 plt.plot(time,momentum)

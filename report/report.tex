@@ -12,14 +12,14 @@
 
 \title{Three-Dimensional Molecular Dynamics Simulation:\\with Verlet algorithm}% Force line breaks with \\
 \author{Tridip Das}
-\date{March 18, 2015}% It is always \today, today, but you can specify other dates manually 
+\date{March 31, 2015}% It is always \today, today, but you can specify other dates manually 
 \maketitle
 
 \begin{abstract}
 The study of classical Molecular Dynamics investigates the interaction of atoms in a face centered cubic (FCC) lattice at different temperature.
 For this study Newton's law of particle interaction has been applied with Verlet algorithm for velocity calculation. The potential interactions are described
 with Lennard-Jones pair potential. For initialization of velocity Box-Muller method is used. The particles are interacted in periodic boundary conditon.
-32 atoms are taken for all the studies described, which is sufficient to adequately describe the system. The temperature effect on lattice is studied with observation of melting phenomena. For ease of calculation scaled parameters are used in this study.
+864 atoms are taken for all the studies described, which is sufficient to adequately describe the system. The temperature effect on lattice is studied with radial distribution function, which shows melting phenomena. For ease of calculation scaled parameters are used in this study.
 \end{abstract}
 
 \section{Introduction} %Title for the section
@@ -74,51 +74,65 @@ The temperature correction of velocity is performed according to below formula t
   \overrightarrow{v}_{new}  = \overrightarrow{v_i} \sqrt{\frac{T_{goal}}{T_{simulated}}}
 \end{equation}
 \section{Results}
-The classical Molecular Dynamics simulation is implemented in Python and Fortran. The FCC lattice generation part is done in Python then Fortran is used for all the calculations. Again Python is used to generate all the plots. Fortran is used for velocity initialization to final energy and lattice position calculations. Code is available in github at \url{https://github.com/tridip66/molecular_dynamics/tree/master/src}. The simulation tries to keep the temperature constant, so steady kinetic energy is observed. The total energy of the system fluctuates around a steady state. It can be observed in the Figure 1 which is ran for $ 10ps$ at $T = 1$. For visualization of crystal lattice VESTA has been used.
+The classical Molecular Dynamics simulation is implemented in Python and Fortran. The FCC lattice generation part is done in Python then Fortran is used for all the calculations. Again Python is used to generate all the plots. Fortran is used for velocity initialization to final energy and lattice position calculations. Code is available in github at \url{https://github.com/tridip66/molecular_dynamics/tree/master/src}. The simulation tries to keep the temperature constant, so steady kinetic energy is observed. The total energy of the system fluctuates around a steady state but it may subside with much bigger system. It can be observed in the Figure 1 which is ran for $ 4.34ps$ at $T = 1$. For visualization of crystal lattice VESTA has been used.
 \\
-\begin{figure}[p]
+\begin{figure}[ht]
   \centering
-  \includegraphics[scale=0.4]{figures/Energyplot}% Imports a figure - does not automatically scale
-  \caption{\label{fig:epsart} Energy vs time plot at T = 1.0 for 10 ps of simulation performed}
-\end{figure}
-\\
-It can be observed that the fluctuations are subsided in Figure 2, when the target temperature is low $T = 0.1$ .
-\\
-\begin{figure}[p]
-  \centering
-  \includegraphics[scale=0.4]{figures/Energy0dot1}% Imports a figure - does not automatically scale
+  \includegraphics[scale=0.4]{figures/EnergyPlot}% Imports a figure - does not automatically scale
   \caption{\label{fig:epsart} Energy vs time plot at T = 0.1 for 4.34 ps of simulation}
 \end{figure}
 \\
-The temperature fluctuation with simulation time is shown in Figure 3. The goal for temperature was set at T = 1.0. The temperature varies nicely around the goal.
+The temperature fluctuation with simulation time is shown in Figure 2. The goal for temperature was set at T = 1.0. The temperature varies nicely around the goal.
 \\
-\begin{figure}[p]
+\begin{figure}[ht]
   \centering
   \includegraphics[scale=0.5]{figures/TempPlot}% Imports a figure - does not automatically scale
   \caption{\label{fig:epsart} Temperature fuctuation around T = 1.0 with time calculated at T = 1.0}
 \end{figure}
 \\
-During the simulation of the FCC lattice it was possible that due to resultant velocity of all the particles the simulation box may get some momentum. Hence, a correction has been applied for the velocity to keep the momentum of the center of mass negligible. The momentum of the center mass with time is shown in Figure 4 at high temperature T = 1.0, when the velocity fluctuation is higher.
-\begin{figure}[p]
+The pressure fluctuation with simulation time is shown in Figure 3.
+\\
+\begin{figure}[ht]
   \centering
-  \includegraphics[scale=0.5]{figures/MomPlot}% Imports a figure - does not automatically scale
+  \includegraphics[scale=0.5]{figures/PressurePlot}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} Pressure fuctuation with time calculated at T = 1.0}
+\end{figure}
+\\
+During the simulation of the FCC lattice it was possible that due to resultant velocity of all the particles the simulation box may get some momentum. Hence, a correction has been applied for the velocity to keep the momentum of the center of mass negligible. The momentum of the center mass with time is shown in Figure 4 at high temperature T = 1.0, when the velocity fluctuation is higher.
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.4]{figures/MomPlot}% Imports a figure - does not automatically scale
   \caption{\label{fig:epsart} Momentum of the center of mass with time at T = 1.0}
 \end{figure}
 \\
 As the velocity fluctuation for every particle can be interesting phenomena to observe and it can give an idea of melting when translated to displacement, so the velocity fluctuations of five particles are plotted in Figure 5. Velocity variation with time is not plotted for all the particles as it will make the plot clumsy.
-\begin{figure}[p]
+\begin{figure}[ht]
   \centering
-  \includegraphics[scale=0.5]{figures/VelPlot}% Imports a figure - does not automatically scale
+  \includegraphics[scale=0.4]{figures/VelPlot}% Imports a figure - does not automatically scale
   \caption{\label{fig:epsart} Velocity fluctuation with time at T=1.0}
 \end{figure}
 \\
 \subsection{Visualization of Melting}
-The final position of the atoms in the crystal lattice are recorded after a 4.34 ps of simulation run. As the time is sufficient to reach the steady temperature for the system. In Figure 6 final atom postions are displayed for four different temperatures $ (T = 0.0, 0.1, 0.5, 1.0)$. At temperature $ T = 0.5$ it is clear that lattice vibation increases and at $T = 1.0 $ the periodicity of the system is lost. This can be assumed as melting of the structure. VESTA is used for the visualization of the structures. For better capturing of melting root mean square displacement can be plotted at different temperature. Also, from coordination number decreament with increasing temperature can find the melting point. 
+The final position of the atoms in the crystal lattice are recorded after a 4.34 ps of simulation run. As the time is sufficient to reach the steady temperature for the system. In Figure 6 final atom postions are displayed for four different temperatures $ (T = 0.0, 0.1, 0.5, 1.0)$. For simplicity only 32 atoms cell is shown. At temperature $ T = 0.5$ it is clear that lattice vibation increases and at $T = 1.0 $ the periodicity of the system is lost. VESTA is used for the visualization of the structures. For better capturing of melting radial distribution function has been plotted with 864 atoms. The RDF plot at $ T = 0.1 $ in Figure 7 shows the peridocity in the structure. From the RDF plots we can conclude that melting occurs at $ T = 0.8 $
 \\
-\begin{figure}[p]
+\begin{figure}[ht]
   \centering
-  \includegraphics[trim = 10mm 70mm 10mm 10mm, scale=0.5]{figures/Lattice}% Imports a figure - does not automatically scale
-  \caption{\label{fig:epsart} Crystal lattice at different temperatures}
+  \includegraphics[scale=0.3]{figures/RDFPlot1}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} RDF plot at T = 0.1}
+\end{figure}
+\\
+\\
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.3]{figures/RDFPlot7}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} RDF plot at T = 0.7}
+\end{figure}
+\\
+\\
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.3]{figures/RDFPlot8}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} RDF plot at T = 0.8}
 \end{figure}
 \\
 \section*{References}
