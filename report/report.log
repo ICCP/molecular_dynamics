@@ -1,4 +1,4 @@
-This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2015.1.29)  31 MAR 2015 23:59
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2015.1.29)  1 APR 2015 00:11
 entering extended mode
  %&-line parsing enabled.
 **report.tex
@@ -206,6 +206,15 @@ LaTeX Warning: Label `fig:epsart' multiply defined.
 
 LaTeX Warning: Label `fig:epsart' multiply defined.
 
+
+LaTeX Warning: Label `fig:epsart' multiply defined.
+
+
+LaTeX Warning: Label `fig:epsart' multiply defined.
+
+
+LaTeX Warning: Label `fig:epsart' multiply defined.
+
 )
 \openout1 = `report.aux'.
 
@@ -289,27 +298,33 @@ Underfull \hbox (badness 10000) in paragraph at lines 77--115
 
 pdfTeX warning: pdflatex (file ./figures/EnergyPlot.pdf): PDF inclusion: Page G
 roup detected which pdfTeX can't handle. Ignoring it.
->] <figures/RDFPlot1.pdf, id=113, 578.16pt x 433.62pt>
+>] <figures/Lattice.pdf, id=113, 614.295pt x 794.97pt>
+File: figures/Lattice.pdf Graphic file (type pdf)
+
+<use figures/Lattice.pdf> <figures/RDFPlot1.pdf, id=114, 578.16pt x 433.62pt>
 File: figures/RDFPlot1.pdf Graphic file (type pdf)
 
-<use figures/RDFPlot1.pdf> <figures/RDFPlot7.pdf, id=114, 578.16pt x 433.62pt>
+<use figures/RDFPlot1.pdf> <figures/RDFPlot7.pdf, id=115, 578.16pt x 433.62pt>
 File: figures/RDFPlot7.pdf Graphic file (type pdf)
 
-<use figures/RDFPlot7.pdf> <figures/RDFPlot8.pdf, id=115, 578.16pt x 433.62pt>
+<use figures/RDFPlot7.pdf> <figures/RDFPlot8.pdf, id=116, 578.16pt x 433.62pt>
 File: figures/RDFPlot8.pdf Graphic file (type pdf)
 
-<use figures/RDFPlot8.pdf>
-Underfull \hbox (badness 10000) in paragraph at lines 116--138
+<use figures/RDFPlot8.pdf> <figures/RDFPlot9.pdf, id=117, 578.16pt x 433.62pt>
+File: figures/RDFPlot9.pdf Graphic file (type pdf)
+
+<use figures/RDFPlot9.pdf>
+Underfull \hbox (badness 10000) in paragraph at lines 116--150
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 116--138
+Underfull \hbox (badness 10000) in paragraph at lines 116--150
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 116--138
+Underfull \hbox (badness 10000) in paragraph at lines 116--150
 
  []
 
@@ -320,22 +335,22 @@ up detected which pdfTeX can't handle. Ignoring it.
 >]
 Missing character: There is no – in font cmr10!
 
-Underfull \hbox (badness 10000) in paragraph at lines 139--150
+Underfull \hbox (badness 10000) in paragraph at lines 151--162
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 139--150
+Underfull \hbox (badness 10000) in paragraph at lines 151--162
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 139--150
+Underfull \hbox (badness 10000) in paragraph at lines 151--162
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 139--150
+Underfull \hbox (badness 10000) in paragraph at lines 151--162
 
  []
 
@@ -351,11 +366,11 @@ p detected which pdfTeX can't handle. Ignoring it.
 
 pdfTeX warning: pdflatex (file ./figures/VelPlot.pdf): PDF inclusion: Page Grou
 p detected which pdfTeX can't handle. Ignoring it.
->] [7 <./figures/RDFPlot1.pdf
+>] [7 <./figures/Lattice.pdf> <./figures/RDFPlot1.pdf
 
 pdfTeX warning: pdflatex (file ./figures/RDFPlot1.pdf): PDF inclusion: Page Gro
 up detected which pdfTeX can't handle. Ignoring it.
-> <./figures/RDFPlot7.pdf
+>] [8 <./figures/RDFPlot7.pdf
 
 pdfTeX warning: pdflatex (file ./figures/RDFPlot7.pdf): PDF inclusion: Page Gro
 up detected which pdfTeX can't handle. Ignoring it.
@@ -363,16 +378,20 @@ up detected which pdfTeX can't handle. Ignoring it.
 
 pdfTeX warning: pdflatex (file ./figures/RDFPlot8.pdf): PDF inclusion: Page Gro
 up detected which pdfTeX can't handle. Ignoring it.
+> <./figures/RDFPlot9.pdf
+
+pdfTeX warning: pdflatex (file ./figures/RDFPlot9.pdf): PDF inclusion: Page Gro
+up detected which pdfTeX can't handle. Ignoring it.
 >] (./report.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 3586 strings out of 256216
- 46888 string characters out of 1917072
- 106830 words of memory out of 1500000
- 6779 multiletter control sequences out of 10000+200000
+ 3599 strings out of 256216
+ 47128 string characters out of 1917072
+ 106808 words of memory out of 1500000
+ 6787 multiletter control sequences out of 10000+200000
  17198 words of font info for 64 fonts, out of 1200000 for 2000
  645 hyphenation exceptions out of 8191
  27i,14n,36p,787b,352s stack positions out of 5000i,500n,6000p,200000b,15000s
@@ -385,9 +404,9 @@ esky/cm/cmr17.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmr5.pfb></usr/share
 /texmf/fonts/type1/bluesky/cm/cmr7.pfb></usr/share/texmf/fonts/type1/bluesky/cm
 /cmr9.pfb></usr/share/texmf/fonts/type1/bluesky/cm/cmsy10.pfb></usr/share/texmf
 /fonts/type1/bluesky/cm/cmtt10.pfb>
-Output written on report.pdf (7 pages, 267455 bytes).
+Output written on report.pdf (8 pages, 387213 bytes).
 PDF statistics:
- 422 PDF objects out of 1000 (max. 8388607)
- 33 named destinations out of 1000 (max. 131072)
- 113 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 475 PDF objects out of 1000 (max. 8388607)
+ 36 named destinations out of 1000 (max. 131072)
+ 123 words of extra memory for PDF output out of 10000 (max. 10000000)
 

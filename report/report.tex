@@ -82,7 +82,7 @@ The classical Molecular Dynamics simulation is implemented in Python and Fortran
   \caption{\label{fig:epsart} Energy vs time plot at T = 0.1 for 4.34 ps of simulation}
 \end{figure}
 \\
-The temperature fluctuation with simulation time is shown in Figure 2. The goal for temperature was set at T = 1.0. The temperature varies nicely around the goal.
+The temperature fluctuation with simulation time is shown in Figure 2. The goal for temperature was set at T = 1.0. The temperature varies nicely around the goal. Thermostat is set to bring back the temperature to goal after every 20 iterations.
 \\
 \begin{figure}[ht]
   \centering
@@ -115,6 +115,12 @@ As the velocity fluctuation for every particle can be interesting phenomena to o
 \subsection{Visualization of Melting}
 The final position of the atoms in the crystal lattice are recorded after a 4.34 ps of simulation run. As the time is sufficient to reach the steady temperature for the system. In Figure 6 final atom postions are displayed for four different temperatures $ (T = 0.0, 0.1, 0.5, 1.0)$. For simplicity only 32 atoms cell is shown. At temperature $ T = 0.5$ it is clear that lattice vibation increases and at $T = 1.0 $ the periodicity of the system is lost. VESTA is used for the visualization of the structures. For better capturing of melting radial distribution function has been plotted with 864 atoms. The RDF plot at $ T = 0.1 $ in Figure 7 shows the peridocity in the structure. From the RDF plots we can conclude that melting occurs at $ T = 0.8 $
 \\
+\begin{figure}[p]
+  \centering
+  \includegraphics[trim = 10mm 70mm 10mm 10mm, scale=0.4]{figures/Lattice}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} Crystal lattice at different temperatures}
+ \end{figure}
+\\
 \begin{figure}[ht]
   \centering
   \includegraphics[scale=0.3]{figures/RDFPlot1}% Imports a figure - does not automatically scale
@@ -133,6 +139,12 @@ The final position of the atoms in the crystal lattice are recorded after a 4.34
   \centering
   \includegraphics[scale=0.3]{figures/RDFPlot8}% Imports a figure - does not automatically scale
   \caption{\label{fig:epsart} RDF plot at T = 0.8}
+\end{figure}
+\\
+\begin{figure}[ht]
+  \centering
+  \includegraphics[scale=0.3]{figures/RDFPlot9}% Imports a figure - does not automatically scale
+  \caption{\label{fig:epsart} RDF plot at T = 0.9}
 \end{figure}
 \\
 \section*{References}
