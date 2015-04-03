@@ -10,12 +10,13 @@ program md
   real(8) :: bounds
   real(8) :: temperature
   real(8),dimension(:,:),allocatable :: pos,vel,accel
-  
+  print*,'here'
+
   temperature = 2.d0
-  NT = 1000     !Number of Time Steps
-  ncells = 2
+  NT = 500     !Number of Time Steps
+  ncells = 8
   nprtl  = 4*ncells**3
-  neighbor_dist = 2.d0**(1.d0/6.d0)-0.1
+  neighbor_dist = 2.d0**(1.d0/6.d0)
   boxlength = 2.d0 / sqrt(2.d0) * neighbor_dist
   bounds = ncells*boxlength
 
@@ -27,14 +28,16 @@ program md
   vel = 0 
   accel = 0
 
-  open(unit = 2, file = 'pos.xyz', status = 'unknown')
-  open(unit = 3, file = 'energy.out', status = 'unknown')
-  open(unit = 4, file = 'pressure.out', status = 'unknown')
+  open(unit = 50, file = 'pos.xyz', status = 'unknown')
+  open(unit = 51, file = 'energy.out', status = 'unknown')
+  open(unit = 52, file = 'pressure.out', status = 'unknown')
+  open(unit = 53, file = 'temperature.out',status = 'unknown')
+  open(unit = 54, file = 'raddist.out', status = 'unknown')
 
   print*,'neighbor_dist',neighbor_dist
   print*,'boxlength', boxlength 
   print*,'bounds:',bounds
-  
+  print*,'bould lattice'
   call bld_lattice(pos,vel,ncells,boxlength,nprtl,temperature)
   call xyz_file_printout(pos,nprtl,1)
   call verlet_velocity_integration(pos,vel,accel,nprtl,NT,bounds,temperature)
@@ -87,9 +90,9 @@ subroutine bld_lattice(pos_prtl,vel_prtl,numcells_wide,cell_width,numprtl,temp) 
                   nrv3 = sqrt(-2.d0*log(urv3))*cos(6.28318530718d0*urv4)
                   nrv4 = sqrt(-2.d0*log(urv4))*sin(6.28318530718d0*urv3)
 
-                  vel_prtl(prtl_count,1) = exp(-0.5d0*nrv1**2.d0)*sqrt(temp/6.28318530718d0)
-                  vel_prtl(prtl_count,2) = exp(-0.5d0*nrv2**2.d0)*sqrt(temp/6.28318530718d0)
-                  vel_prtl(prtl_count,3) = exp(-0.5d0*nrv3**2.d0)*sqrt(temp/6.28318530718d0)
+                  vel_prtl(prtl_count,1) = nrv1
+                  vel_prtl(prtl_count,2) = nrv2
+                  vel_prtl(prtl_count,3) = nrv3
 
               end do 
           end do
@@ -103,7 +106,7 @@ subroutine bld_lattice(pos_prtl,vel_prtl,numcells_wide,cell_width,numprtl,temp) 
   vel_prtl(:,1) = vel_prtl(:,1) - vel_sum(1)/numprtl
   vel_prtl(:,2) = vel_prtl(:,2) - vel_sum(2)/numprtl
   vel_prtl(:,3) = vel_prtl(:,3) - vel_sum(3)/numprtl
-
+  call scale_vel(vel_prtl,numprtl,0.5d0*sum(vel_prtl**2),temp)
 
 end subroutine !}}}
 
@@ -120,16 +123,16 @@ subroutine xyz_file_printout(pos_prtl,numprtl,timestep) !{{{
   integer :: ii
 
 
-  write(2,*),numprtl
-  write(2,*),'Particles at time step:',timestep
+  write(50,*),numprtl
+  write(50,*),'Particles at time step:',timestep
   !Internal Variables
   do ii = 1,numprtl
-      write(2,*),ii,pos_prtl(ii,:)
+      write(50,*),ii,pos_prtl(ii,:)
   end do 
 
 end subroutine !}}}
 
-subroutine force_calc(pos_prtl,numprtl,boundry,force,ljp,temp)!{{{
+subroutine force_calc(pos_prtl,numprtl,boundry,force,ljp,press_temp)!{{{
 
   implicit none
 
@@ -138,32 +141,32 @@ subroutine force_calc(pos_prtl,numprtl,boundry,force,ljp,temp)!{{{
   real(8),dimension(numprtl,3) :: pos_prtl,force
   real(8) :: boundry
   real(8) :: ljp
-  real(8) :: pressure
-  real(8) :: temp
+  real(8),dimension(100) :: rad_dist
+  real(8) :: press_temp
 
   !Internal Variables
-  integer :: ii, jj 
+  integer :: ii, jj ,kk
   real(8),dimension(3) :: dr
   real(8) :: drsq       !value of 
+  real(8) :: drsqrt
   real(8) :: force_mag
   real(8) :: min_dist
-  real(8) :: press_temp
-  real(8) :: vol
   press_temp = 0.d0
   min_dist = 10000
   ljp = 0.d0
-  
+  rad_dist = 0.d0
   do ii = 1,numprtl-1
       do jj = ii+1,numprtl
           dr = pos_prtl(jj,:) - pos_prtl(ii,:)
           dr = dr - NINT(dr/boundry)*boundry
           drsq = dot_product(dr,dr)
-          
+          drsqrt = sqrt(drsq)
+          !print*,'drsqrt:',drsqrt
           !print out the smallest interations distance
-          if (min_dist > sqrt(drsq)) min_dist = sqrt(drsq)
+          if (min_dist > drsqrt) min_dist = drsqrt
           
           !Calculating Lennard Jones Potiential
-          ljp = ljp + (4.d0 * drsq**(-6.d0) - drsq**(-3.d0))
+          ljp = ljp + 4.d0 * ( drsq**(-6.d0) - drsq**(-3.d0))
           
           !foce calculation
           force_mag = (-48.d0/drsq**7 + 24/drsq**4)
@@ -171,13 +174,24 @@ subroutine force_calc(pos_prtl,numprtl,boundry,force,ljp,temp)!{{{
           force(jj,:) = force(jj,:) - force_mag*dr
           
           !Pressure calculation
-          press_temp = press_temp + sqrt(drsq)*sqrt(dot_product(force(ii,:),force(ii,:)))
+          press_temp = press_temp + force_mag*dot_product(dr,dr)
+
+          !Radial Distibution
+          do kk = 1,100
+              !print*,'Lower Bounds:',((kk-1)*(boundry/10.d0)+0.7d0) 
+              !print*,'Upper Bounds:',((kk)*(boundry/10.d0)+0.7d0)
+              if((((kk-1)*(boundry/100.d0)+0.7d0) .lt. drsqrt) .and. (((kk)*(boundry/100.d0)+0.7d0) .gt. drsqrt)) then 
+                
+                  rad_dist(kk) = rad_dist(kk) + 1
+              end if 
+          end do 
+
       end do 
   end do 
 
-  vol = boundry**(3.d0)
-  pressure = (1/vol)*(numprtl*temp - (1.d0/(3.d0*temp))*press_temp)
-  write(4,*),pressure
+  do kk = 1,100
+      write(54,*),kk,rad_dist(kk)
+  end do 
 
 print*,'min_dist:', min_dist
 end subroutine!}}}
@@ -192,21 +206,25 @@ subroutine verlet_velocity_integration(pos_prtl,vel_prtl,accel_prtl,numprtl,numt
   real(8),dimension(numprtl,3) :: pos_prtl,vel_prtl,accel_prtl
   real(8) :: boundry
   real(8) :: temp
+  
   !Internal Variables
   integer :: ii
   real(8) :: dt = 0.004   !Not a paramerter I want to change
   real(8),dimension(numprtl,3) :: vel_p,vel_pp,accel_p,accel_pp,pos_p,pos_pp
   real(8) :: ljpe
-  real(8) :: xke,yke,zke,ke,tot_energy
+  real(8) :: ke,tot_energy
+  real(8) :: pressure_temp
+  real(8) :: pressure
+  real(8) :: vol
+  real(8) :: temp_m
+
   vel_p    = 0.d0
   vel_pp   = 0.d0
   accel_p  = 0.d0
   accel_pp = 0.d0
   pos_p    = 0.d0
   pos_pp   = 0.d0
-  xke      = 0.d0
-  yke      = 0.d0
-  zke      = 0.d0
+  pressure_temp = 0.d0
   ke       = 0.d0
   ljpe     = 0.d0
 
@@ -241,24 +259,31 @@ subroutine verlet_velocity_integration(pos_prtl,vel_prtl,accel_prtl,numprtl,numt
       
       !Calculate Force
       ljpe = 0.d0
-      call force_calc(pos_prtl,numprtl,boundry,accel_prtl,ljpe,temp)   !Calculate acceleration  for t+1
+      call force_calc(pos_prtl,numprtl,boundry,accel_prtl,ljpe,pressure_temp)   !Calculate acceleration  for t+1
       
       !Update Velocity
       vel_prtl = vel_prtl + 0.5*accel_prtl*dt                !Calculate vel for t+1
       
       
-      xke = 0.5d0*dot_product(vel_prtl(:,1),vel_prtl(:,1))
-      yke = 0.5d0*dot_product(vel_prtl(:,2),vel_prtl(:,2))
-      zke = 0.5d0*dot_product(vel_prtl(:,3),vel_prtl(:,3))
-
-      ke = sqrt(xke**2 + yke**2 + zke**2)
+      !Energy 
+      ke = .5d0*sum(vel_prtl**2)
       tot_energy = ljpe + ke
-  
-      write(3,*),ii,tot_energy,ke,ljpe
+      write(51,*),ii,tot_energy,ke,ljpe
+      
+      !Temperature Writen to file
+      temp_m = ke/(1.5d0*dble(numprtl-1))
+      write(53,*),ii,temp_m
+      
+      !Pressure
+      vol = boundry**(3.d0)
+      pressure = (numprtl*temp_m - (1.d0/(3.d0*temp_m))*pressure_temp)/vol
+      write(52,*),ii,pressure
+
+      !Write position to file
       call xyz_file_printout(pos_prtl,numprtl,ii)
 
       !Scale Velocity
-      if (mod(ii,20) == 0 .and. (ii .lt. 400))  then 
+      if (mod(ii,20) == 0 .and. (ii .lt. 200))  then 
           call scale_vel(vel_prtl,numprtl,ke,temp)
           print*,'calling Scale Velocity'
       end if
@@ -269,12 +294,14 @@ end subroutine!}}}
 
 subroutine scale_vel(vel_prtl,numprtl,ke,temp)!{{{
 !http://www.pages.drexel.edu/~cfa22/msim/node33.html
-  
-  !Input Variable
+!http://dasher.wustl.edu/bio5476/lectures/lecture-06.pdf  !Input Variable
+ 
+  !Input Variables
   real(8),dimension(numprtl,3) :: vel_prtl
   real(8) :: temp
   real(8) :: ke 
   integer :: numprtl
+  
   !internal Variables
   real(8) :: T  !scaled Velocity scalefactor
   real(8) :: alpha

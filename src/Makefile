@@ -17,3 +17,7 @@ $(TARGET): $(OBJS)
 
 %.o:%.f95
 	$(COMPILE) -c $<
+
+clean:
+	rm *.o
+	rm *.exe
