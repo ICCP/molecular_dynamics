@@ -1,0 +1,29 @@
+!FFLAGS +	Makefile	/^!FFLAGS += $(shell pkg-config --cflags plplotd-f95/
+!LDFLAGS	Makefile	/^!LDFLAGS = $(shell pkg-config --libs plplotd-f95)$/
+$(TARGET	Makefile	/^$(TARGET): $(OBJS)$/
+%.o	Makefile	/^%.o:%.f95$/
+COMPILE	Makefile	/^COMPILE = $(FC) $(FFLAGS)$/
+FC	Makefile	/^FC      = gfortran$/
+FFLAGS	Makefile	/^FFLAGS  = -Wall -Wextra -O3 -fimplicit-none -march/
+LIBS	Makefile	/^LIBS    =$/
+LINK	Makefile	/^LINK = $(FC) $(LDFLAGS)$/
+OBJS	Makefile	/^OBJS = global.o md.o  # List of object dependencie/
+OBJ_DIR	Makefile	/^OBJ_DIR = ..\/Obj$/
+TARGET	Makefile	/^TARGET = md.exe       # Name of final executable t/
+accel_calc	md.f95	/^subroutine accel_calc(it) !{{{$/
+bld_lattice	md.f95	/^subroutine bld_lattice !{{{$/
+bld_lattice_two_prtl	md.f95	/^subroutine bld_lattice_two_prtl !{{{$/
+force_lj	md.f95	/^subroutine force_lj(pos1,pos2,force) !{{{$/
+md_plot_close	md_plot.f95	/^  subroutine md_plot_close()$/
+md_plot_init	md_plot.f95	/^  subroutine md_plot_init(boxSize)$/
+md_plot_points	md_plot.f95	/^  subroutine md_plot_points(xyz)$/
+nxcells	global.f95	5
+nycells	global.f95	5
+real	global.f95	/^real(8) :: xcellscl,ycellscl,zcellscl !Width of fc/
+scalerand	md.f95	/^subroutine scalerand(randvel)  !{{{$/
+this	global.mod	2
+verlet_integration	md.f95	/^subroutine verlet_integration !{{{$/
+writepos	md.f95	/^subroutine writepos !{{{$/
+writevel	md.f95	/^subroutine writevel!{{{$/
+x	global.f95	5
+y	global.f95	5
