@@ -1,1 +1,4 @@
-10 ! number of cells in 1 direction
+2     ! number of cells in 1 direction
+15.d0  ! Temperature (units of kB)
+2000 4.d-3 ! timesteps and dt
+27    ! particle ID to track

@@ -9,7 +9,7 @@ libs=
 
 comp90=gfortran
 comp77=gfortran
-debugfl=-g -fbacktrace -fbounds-check
+debugfl=#-g -fbacktrace -fbounds-check
 opt=-O3 -Wall -cpp
 modd=-J $(modDir)
 f90flags=$(debugfl) $(opt) -c $(modd)
